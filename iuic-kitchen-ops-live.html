@@ -1,0 +1,1277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IUIC Gastonia — Kitchen Operations System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75,400..800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0F1A2E; --bg2:#162035; --bg3:#1C2A42;
+  --card:#1E2D47; --card2:#243352;
+  --border:#2A3B5A; --border2:#354870;
+  --gold:#C9A227; --gold2:#E5C969; --gold-dim:#7A5E10;
+  --white:#FFFFFF; --text:#D0D8EC; --muted:#7A8BAD;
+  --green:#22A854; --green-bg:rgba(34,168,84,.15);
+  --yellow:#E5A827; --yellow-bg:rgba(229,168,39,.15);
+  --red:#E05050; --red-bg:rgba(224,80,80,.15);
+  --radius:10px; --radius-sm:6px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;min-height:100vh;}
+.arch{font-family:'Archivo',sans-serif;font-stretch:75%;}
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+
+/* ── LAYOUT ── */
+.app{display:flex;flex-direction:column;height:100vh;}
+header{background:var(--bg2);border-bottom:3px solid var(--gold);padding:0 16px;flex-shrink:0;z-index:100;}
+.header-inner{display:flex;align-items:center;justify-content:space-between;max-width:1400px;margin:0 auto;height:54px;gap:10px;flex-wrap:nowrap;}
+.logo{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.logo-badge{background:var(--gold);color:var(--bg);font-family:'Archivo',sans-serif;font-stretch:75%;font-weight:800;font-size:12px;padding:3px 8px;border-radius:4px;letter-spacing:.05em;text-transform:uppercase;}
+.logo-text{font-family:'Archivo',sans-serif;font-stretch:75%;font-weight:700;font-size:14px;color:var(--white);text-transform:uppercase;letter-spacing:.04em;}
+.header-meta{display:flex;align-items:center;gap:12px;flex:1;justify-content:center;}
+.hf{display:flex;align-items:center;gap:6px;}
+.hf label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;}
+.hf input{background:var(--bg3);border:1px solid var(--border);border-radius:5px;color:var(--white);padding:5px 9px;font-size:13px;font-weight:600;}
+.hf input:focus{outline:none;border-color:var(--gold);}
+.header-actions{display:flex;gap:6px;flex-shrink:0;}
+
+/* ── BUTTONS ── */
+.btn{font-family:'Archivo',sans-serif;font-stretch:75%;font-weight:700;text-transform:uppercase;letter-spacing:.07em;font-size:11px;padding:6px 12px;border-radius:5px;cursor:pointer;border:none;transition:all .15s;white-space:nowrap;}
+.btn-gold{background:var(--gold);color:var(--bg);}
+.btn-gold:hover{background:var(--gold2);}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border2);}
+.btn-ghost:hover{color:var(--white);border-color:var(--gold);}
+.btn-danger{background:transparent;color:#c04040;border:1px solid #5A2A2A;font-size:10px;padding:4px 8px;}
+.btn-danger:hover{border-color:var(--red);color:var(--red);}
+.btn-sm{padding:4px 9px;font-size:10px;}
+
+/* ── SIDE NAV ── */
+.body-wrap{display:flex;flex:1;overflow:hidden;}
+nav.sidenav{width:176px;background:var(--bg2);border-right:1px solid var(--border);flex-shrink:0;padding:12px 0;overflow-y:auto;}
+.nav-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;padding:4px 14px;margin-bottom:2px;}
+.nav-btn{display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:none;color:var(--muted);padding:7px 14px;border-radius:0;cursor:pointer;font-size:13px;font-weight:500;text-align:left;transition:all .1s;}
+.nav-btn:hover{background:var(--bg3);color:var(--white);}
+.nav-btn.active{background:rgba(201,162,39,.1);color:var(--gold2);font-weight:600;border-left:3px solid var(--gold);}
+.nav-icon{font-size:14px;width:18px;text-align:center;flex-shrink:0;}
+.nav-badge{margin-left:auto;border-radius:99px;font-size:9px;font-weight:700;padding:1px 5px;min-width:18px;text-align:center;background:var(--border2);color:var(--muted);}
+.nav-badge.ok{background:var(--green);color:#fff;}
+.nav-badge.partial{background:var(--yellow);color:#000;}
+.nav-divider{height:1px;background:var(--border);margin:8px 0;}
+
+/* ── MAIN ── */
+.main{flex:1;overflow-y:auto;padding:20px 24px;}
+.page{display:none;}
+.page.active{display:block;}
+.pg-title{font-family:'Archivo',sans-serif;font-stretch:75%;font-weight:800;font-size:20px;color:var(--white);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px;}
+.pg-sub{font-size:12px;color:var(--muted);margin-bottom:16px;}
+
+/* ── CARDS ── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin-bottom:12px;}
+.card-title{font-family:'Archivo',sans-serif;font-stretch:75%;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--gold2);margin-bottom:10px;}
+
+/* ── STATS ── */
+.stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-bottom:12px;}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;}
+.stat-val{font-family:'Archivo',sans-serif;font-stretch:75%;font-weight:800;font-size:26px;color:var(--white);line-height:1;}
+.stat-lbl{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-top:3px;}
+.stat.s-green .stat-val{color:var(--green);}
+.stat.s-yellow .stat-val{color:var(--yellow);}
+.stat.s-red .stat-val{color:var(--red);}
+
+/* ── TEAM CARDS ── */
+.team-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;margin-bottom:12px;}
+.tc{background:var(--card);border:1px solid var(--border);border-left:4px solid var(--border2);border-radius:var(--radius);padding:14px 16px;cursor:pointer;transition:all .12s;}
+.tc:hover{background:var(--card2);border-color:var(--border2);}
+.tc.done{border-left-color:var(--green);}
+.tc.partial{border-left-color:var(--yellow);}
+.tc-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.tc-name{display:flex;align-items:center;gap:7px;font-family:'Archivo',sans-serif;font-stretch:75%;font-weight:700;font-size:13px;color:var(--white);text-transform:uppercase;}
+.tc-coord{font-size:11px;color:var(--muted);margin-bottom:8px;}
+.tc-coord b{color:var(--text);}
+.tc-nums{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;text-align:center;}
+.tcn-val{font-family:'Archivo',sans-serif;font-stretch:75%;font-weight:700;font-size:15px;color:var(--white);}
+.tcn-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;}
+.tc-bar{margin-top:8px;height:3px;background:var(--border);border-radius:2px;overflow:hidden;}
+.tc-fill{height:100%;border-radius:2px;background:var(--yellow);transition:width .3s;}
+.tc-fill.full{background:var(--green);}
+
+/* ── STATUS DOTS ── */
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.dot.green{background:var(--green);}
+.dot.yellow{background:var(--yellow);}
+.dot.red{background:var(--red);}
+.dot.gray{background:var(--border2);}
+
+/* ── STAFF TABLE ── */
+.tbl-wrap{overflow-x:auto;}
+table.stbl{width:100%;border-collapse:collapse;}
+.stbl th{background:var(--bg3);color:var(--muted);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:7px 10px;text-align:left;border-bottom:1px solid var(--border);}
+.stbl td{padding:6px 10px;border-bottom:1px solid rgba(42,59,90,.5);vertical-align:middle;}
+.stbl tr:hover td{background:rgba(255,255,255,.015);}
+.stbl td input[type=text]{background:transparent;border:none;border-bottom:1px solid transparent;color:var(--white);font-family:'Inter',sans-serif;font-size:13px;width:100%;padding:2px 0;min-width:100px;}
+.stbl td input[type=text]:focus{outline:none;border-bottom-color:var(--gold);}
+.stbl td select{background:var(--bg3);border:1px solid var(--border);border-radius:4px;color:var(--white);font-family:'Inter',sans-serif;font-size:12px;padding:3px 6px;width:100%;cursor:pointer;}
+.stbl td select:focus{outline:none;border-color:var(--gold);}
+.stbl td select option{background:#1C2A42;}
+.rm-btn{background:transparent;border:none;color:#5A3333;cursor:pointer;font-size:14px;padding:2px 6px;border-radius:4px;line-height:1;}
+.rm-btn:hover{color:var(--red);background:rgba(224,80,80,.1);}
+
+/* ── ASSIGNMENT DROPDOWNS ── */
+.asgn-tbl{width:100%;border-collapse:collapse;}
+.asgn-tbl th{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;padding:5px 10px;text-align:left;border-bottom:1px solid var(--border);}
+.asgn-tbl td{padding:6px 10px;border-bottom:1px solid rgba(42,59,90,.35);vertical-align:middle;}
+.asgn-tbl td:last-child{width:55%;}
+.asgn-tbl select{background:var(--bg3);border:1px solid var(--border);border-radius:5px;color:var(--white);padding:6px 8px;font-family:'Inter',sans-serif;font-size:13px;width:100%;cursor:pointer;}
+.asgn-tbl select:focus{outline:none;border-color:var(--gold);}
+.asgn-tbl select option{background:#1C2A42;}
+.asgn-tbl select.s-green{border-color:var(--green);background:rgba(34,168,84,.12);}
+.asgn-tbl select.s-yellow{border-color:var(--yellow);background:rgba(229,168,39,.08);}
+.asgn-tbl select.s-red{border-color:var(--red);background:rgba(224,80,80,.1);}
+.role-lbl{font-weight:600;color:var(--text);font-size:13px;}
+.role-desc{font-size:11px;color:var(--muted);}
+
+/* ── AVAIL SELECT COLOR ── */
+select.av-yes{border-color:var(--green)!important;background:var(--green-bg)!important;}
+select.av-no{border-color:var(--red)!important;background:var(--red-bg)!important;}
+
+/* ── MEAL STATIONS ── */
+.ms-wrap{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:10px;}
+.ms-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:8px;}
+.ms-name-input{background:transparent;border:none;border-bottom:2px solid var(--gold-dim);color:var(--gold2);font-family:'Archivo',sans-serif;font-stretch:75%;font-weight:700;font-size:14px;padding:2px 4px;flex:1;min-width:0;}
+.ms-name-input:focus{outline:none;border-bottom-color:var(--gold);}
+.ms-name-input::placeholder{color:var(--gold-dim);font-style:italic;}
+
+/* ── TASK ROWS ── */
+.task-hdr,.task-row{display:grid;grid-template-columns:1fr 220px 130px 36px;gap:8px;align-items:center;padding:7px 10px;}
+.task-hdr{border-bottom:1px solid var(--border);}
+.task-hdr span{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;}
+.task-row{border-bottom:1px solid rgba(42,59,90,.4);}
+.task-row:last-child{border-bottom:none;}
+.task-row.done-row .tn{text-decoration:line-through;color:var(--muted);}
+.tn{font-size:13px;font-weight:600;color:var(--text);}
+.task-row select{background:var(--bg3);border:1px solid var(--border);border-radius:5px;color:var(--white);padding:5px 7px;font-size:12px;width:100%;cursor:pointer;}
+.task-row select:focus{outline:none;border-color:var(--gold);}
+.task-row select option{background:#1C2A42;}
+.task-row input[type=text]{background:var(--bg3);border:1px solid var(--border);border-radius:5px;color:var(--white);padding:5px 7px;font-size:12px;width:100%;}
+.task-row input[type=text]:focus{outline:none;border-color:var(--gold);}
+.task-chk{width:17px;height:17px;cursor:pointer;accent-color:var(--green);justify-self:center;}
+
+/* ── TIMELINE ── */
+.tl-item{display:grid;grid-template-columns:72px 1fr;gap:8px;padding:7px 0;border-bottom:1px solid rgba(42,59,90,.3);}
+.tl-item:last-child{border-bottom:none;}
+.tl-time{font-size:11px;font-weight:700;color:var(--gold);text-align:right;padding-top:2px;}
+.tl-what{font-size:13px;color:var(--text);}
+
+/* ── CHECKLIST ── */
+.chk-list{list-style:none;}
+.chk-list li{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(42,59,90,.3);font-size:13px;}
+.chk-list li:last-child{border-bottom:none;}
+.chk-list li input[type=checkbox]{width:15px;height:15px;accent-color:var(--green);cursor:pointer;flex-shrink:0;}
+.chk-list li.chk-done{color:var(--muted);text-decoration:line-through;}
+
+/* ── DONE TOGGLE ── */
+.done-toggle{display:flex;align-items:center;gap:10px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:11px 14px;cursor:pointer;margin-top:4px;}
+.done-toggle input{width:17px;height:17px;accent-color:var(--green);cursor:pointer;flex-shrink:0;}
+.done-toggle-lbl{font-size:13px;font-weight:600;color:var(--text);}
+.done-toggle.is-done{background:var(--green-bg);border-color:var(--green);}
+.done-toggle.is-done .done-toggle-lbl{color:var(--green);}
+
+/* ── NOTES ── */
+.notes-ta{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 10px;min-height:54px;width:100%;color:var(--text);font-family:'Inter',sans-serif;font-size:13px;resize:vertical;}
+.notes-ta:focus{outline:none;border-color:var(--gold);}
+
+/* ── SUMMARY ── */
+.sum-row{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;border-bottom:1px solid rgba(42,59,90,.4);}
+.sum-row:last-child{border-bottom:none;}
+.sum-rname{display:flex;align-items:center;gap:8px;font-weight:600;font-size:13px;}
+.badge{display:inline-flex;align-items:center;font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px;}
+.badge.bg{background:var(--green-bg);color:var(--green);}
+.badge.by{background:var(--yellow-bg);color:var(--yellow);}
+.badge.br{background:var(--red-bg);color:var(--red);}
+.badge.bn{background:rgba(42,59,90,.6);color:var(--muted);}
+
+/* ── FLEX HELPERS ── */
+.flex-b{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px;}
+.flex-g{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:20px;right:20px;background:var(--card2);border:1px solid var(--border2);color:var(--white);padding:10px 16px;border-radius:8px;font-size:13px;font-weight:500;display:none;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.5);}
+
+/* ── MOBILE ── */
+@media(max-width:680px){
+  nav.sidenav{display:none;}
+  .header-meta{display:none;}
+  .logo-text{display:none;}
+  .team-grid{grid-template-columns:1fr;}
+  .stat-row{grid-template-columns:repeat(2,1fr);}
+  .task-hdr,.task-row{grid-template-columns:1fr 1fr 80px 28px;}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <span class="logo-badge">IUIC</span>
+      <span class="logo-text arch">Kitchen Ops</span>
+    </div>
+    <div class="header-meta">
+      <div class="hf">
+        <label>Sabbath Date</label>
+        <input id="hdr-date" type="text" placeholder="e.g. July 5, 2025" style="width:148px;" oninput="SF('hdr-date')">
+      </div>
+      <div class="hf">
+        <label>Weekly Menu</label>
+        <input id="hdr-menu" type="text" placeholder="e.g. Chicken, Rice, Beans" style="width:220px;" oninput="SF('hdr-menu')">
+      </div>
+    </div>
+    <div class="header-actions">
+      <span id="sync-status" style="font-size:11px;font-weight:600;color:var(--muted);padding:0 4px;">Connecting…</span>
+      <button class="btn btn-gold" onclick="downloadFilled()">⬇ Save Copy</button>
+      <button class="btn btn-ghost" onclick="clearWeek()">New Week</button>
+    </div>
+  </div>
+</header>
+
+<div class="body-wrap">
+
+<!-- SIDE NAV -->
+<nav class="sidenav">
+  <div class="nav-label">Overview</div>
+  <button class="nav-btn active" id="nb-dash" onclick="go('pg-dash','nb-dash')"><span class="nav-icon">⚡</span>Dashboard</button>
+  <button class="nav-btn" id="nb-summary" onclick="go('pg-summary','nb-summary')"><span class="nav-icon">📋</span>Summary</button>
+  <button class="nav-btn" id="nb-staff" onclick="go('pg-staff','nb-staff')"><span class="nav-icon">👥</span>Staff Database</button>
+  <button class="nav-btn" id="nb-presab" onclick="go('pg-presab','nb-presab')"><span class="nav-icon">📅</span>Pre-Sabbath</button>
+  <div class="nav-divider"></div>
+  <div class="nav-label">Teams</div>
+  <button class="nav-btn" id="nb-bread" onclick="go('pg-bread','nb-bread')"><span class="nav-icon">🥖</span>Bread<span class="nav-badge" id="bd-bread">—</span></button>
+  <button class="nav-btn" id="nb-cold" onclick="go('pg-cold','nb-cold')"><span class="nav-icon">🥪</span>Cold Foods<span class="nav-badge" id="bd-cold">—</span></button>
+  <button class="nav-btn" id="nb-hot" onclick="go('pg-hot','nb-hot')"><span class="nav-icon">🍗</span>Hot Foods<span class="nav-badge" id="bd-hot">—</span></button>
+  <button class="nav-btn" id="nb-bev" onclick="go('pg-bev','nb-bev')"><span class="nav-icon">🥤</span>Beverage<span class="nav-badge" id="bd-bev">—</span></button>
+  <button class="nav-btn" id="nb-lead" onclick="go('pg-lead','nb-lead')"><span class="nav-icon">🍽</span>Leadership<span class="nav-badge" id="bd-lead">—</span></button>
+  <button class="nav-btn" id="nb-clean" onclick="go('pg-clean','nb-clean')"><span class="nav-icon">🧹</span>Cleaning<span class="nav-badge" id="bd-clean">—</span></button>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+
+<!-- DASHBOARD -->
+<div class="page active" id="pg-dash">
+  <div class="flex-b">
+    <div>
+      <div class="pg-title arch">Master Dashboard</div>
+      <div class="pg-sub" id="dash-sub">Set Sabbath Date above</div>
+    </div>
+    <div class="flex-g">
+      <button class="btn btn-ghost btn-sm" onclick="go('pg-staff','nb-staff')">Manage Staff</button>
+      <button class="btn btn-gold btn-sm" onclick="go('pg-summary','nb-summary')">Full Summary</button>
+    </div>
+  </div>
+  <div class="stat-row">
+    <div class="stat"><div class="stat-val" id="ds-total">0</div><div class="stat-lbl">Total Workers</div></div>
+    <div class="stat s-green"><div class="stat-val" id="ds-asgn">0</div><div class="stat-lbl">Assigned</div></div>
+    <div class="stat s-yellow"><div class="stat-val" id="ds-avail">0</div><div class="stat-lbl">Available</div></div>
+    <div class="stat s-red"><div class="stat-val" id="ds-unavail">0</div><div class="stat-lbl">Unavailable</div></div>
+    <div class="stat"><div class="stat-val" id="ds-open">0</div><div class="stat-lbl">Open Positions</div></div>
+  </div>
+  <div class="team-grid" id="dash-teams"></div>
+  <div class="card">
+    <div class="card-title">Command Structure</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px;">
+      <div><div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;">Head of Operations</div><input id="cmd-head" type="text" placeholder="Officer name" oninput="SF('cmd-head')" style="background:var(--bg3);border:1px solid var(--border);border-radius:5px;color:var(--white);padding:6px 9px;font-size:13px;font-weight:700;width:100%;"></div>
+      <div><div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;">2nd in Command</div><input id="cmd-2ic" type="text" placeholder="Officer name" oninput="SF('cmd-2ic')" style="background:var(--bg3);border:1px solid var(--border);border-radius:5px;color:var(--white);padding:6px 9px;font-size:13px;font-weight:700;width:100%;"></div>
+      <div><div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;">Kitchen Ops Lead</div><input id="cmd-kl" type="text" placeholder="Your name" oninput="SF('cmd-kl')" style="background:var(--bg3);border:1px solid var(--border);border-radius:5px;color:var(--white);padding:6px 9px;font-size:13px;font-weight:700;width:100%;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- STAFF DATABASE -->
+<div class="page" id="pg-staff">
+  <div class="flex-b">
+    <div>
+      <div class="pg-title arch">Staff Database</div>
+      <div class="pg-sub">All 42 workers loaded. Set their team and mark unavailable each week as needed.</div>
+    </div>
+    <button class="btn btn-gold" onclick="addStaff()">+ Add Worker</button>
+  </div>
+  <div class="card">
+    <div class="flex-b" style="margin-bottom:8px;">
+      <div class="flex-g">
+        <span class="dot green"></span><span style="font-size:12px;color:var(--muted);">Assigned</span>
+        <span class="dot yellow"></span><span style="font-size:12px;color:var(--muted);">Available</span>
+        <span class="dot red"></span><span style="font-size:12px;color:var(--muted);">Unavailable</span>
+      </div>
+      <span style="font-size:11px;color:var(--muted);" id="staff-count">42 workers</span>
+    </div>
+    <div class="tbl-wrap">
+      <table class="stbl">
+        <thead><tr>
+          <th style="width:24px;"></th>
+          <th>Name</th>
+          <th>Default Team</th>
+          <th>This Week</th>
+          <th style="width:32px;"></th>
+        </tr></thead>
+        <tbody id="staff-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- PRE-SABBATH -->
+<div class="page" id="pg-presab">
+  <div class="flex-b">
+    <div>
+      <div class="pg-title arch">Pre-Sabbath Preparation</div>
+      <div class="pg-sub">Friday tasks — assign a worker and set a due time.</div>
+    </div>
+    <button class="btn btn-gold" onclick="addPreTask()">+ Add Task</button>
+  </div>
+  <div class="card">
+    <div class="task-hdr">
+      <span>Task</span><span>Assigned To</span><span>Due Time</span><span></span>
+    </div>
+    <div id="pre-task-list"></div>
+  </div>
+</div>
+
+<!-- BREAD -->
+<div class="page" id="pg-bread">
+  <div class="pg-title arch">🥖 Bread Team</div>
+  <div class="pg-sub">Assign your bread team below. All dropdowns pull from the Staff Database.</div>
+  <div id="team-bread"></div>
+</div>
+
+<!-- COLD FOODS -->
+<div class="page" id="pg-cold">
+  <div class="pg-title arch">🥪 Cold Foods Team</div>
+  <div class="pg-sub">Assign your cold foods team below.</div>
+  <div id="team-cold"></div>
+</div>
+
+<!-- HOT FOODS -->
+<div class="page" id="pg-hot">
+  <div class="flex-b">
+    <div>
+      <div class="pg-title arch">🍗 Hot Foods Team</div>
+      <div class="pg-sub">One card per meal. Add stations as needed.</div>
+    </div>
+    <button class="btn btn-gold" onclick="addMealStation()">+ Add Meal</button>
+  </div>
+  <div id="team-hot"></div>
+</div>
+
+<!-- BEVERAGE -->
+<div class="page" id="pg-bev">
+  <div class="pg-title arch">🥤 Beverage Team</div>
+  <div class="pg-sub">Assign your beverage team below.</div>
+  <div id="team-bev"></div>
+</div>
+
+<!-- LEADERSHIP -->
+<div class="page" id="pg-lead">
+  <div class="pg-title arch">🍽 Leadership Meals Team</div>
+  <div class="pg-sub">Assign your leadership meals team below.</div>
+  <div id="team-lead"></div>
+</div>
+
+<!-- CLEANING -->
+<div class="page" id="pg-clean">
+  <div class="pg-title arch">🧹 Cleaning Team</div>
+  <div class="pg-sub">Two sessions — after cold foods and after sale close.</div>
+  <div id="team-clean"></div>
+</div>
+
+<!-- SUMMARY -->
+<div class="page" id="pg-summary">
+  <div class="flex-b">
+    <div>
+      <div class="pg-title arch">Master Summary</div>
+      <div class="pg-sub">Complete picture — all teams, all workers.</div>
+    </div>
+    <button class="btn btn-gold" onclick="downloadFilled()">⬇ Save Copy</button>
+  </div>
+  <div class="stat-row">
+    <div class="stat"><div class="stat-val" id="ss-total">0</div><div class="stat-lbl">Total Workers</div></div>
+    <div class="stat s-green"><div class="stat-val" id="ss-asgn">0</div><div class="stat-lbl">Assigned</div></div>
+    <div class="stat s-yellow"><div class="stat-val" id="ss-avail">0</div><div class="stat-lbl">Available</div></div>
+    <div class="stat s-red"><div class="stat-val" id="ss-unavail">0</div><div class="stat-lbl">Unavailable</div></div>
+    <div class="stat"><div class="stat-val" id="ss-open">0</div><div class="stat-lbl">Open Positions</div></div>
+  </div>
+  <div class="card" style="margin-bottom:10px;">
+    <div class="card-title">Team Status</div>
+    <div id="sum-teams"></div>
+  </div>
+  <div class="card" style="margin-bottom:10px;">
+    <div class="card-title">Pre-Sabbath Tasks</div>
+    <div id="sum-tasks"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Full Staff List</div>
+    <div id="sum-staff"></div>
+  </div>
+</div>
+
+</main>
+</div><!-- body-wrap -->
+</div><!-- app -->
+<div id="toast"></div>
+
+<!-- LOADING OVERLAY -->
+<div id="loading-overlay" style="position:fixed;inset:0;background:#0F1A2E;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;">
+  <div style="font-family:'Archivo',sans-serif;font-stretch:75%;font-size:18px;font-weight:800;color:#C9A227;letter-spacing:.05em;text-transform:uppercase;margin-bottom:16px;">IUIC Kitchen Ops</div>
+  <div style="width:40px;height:40px;border:3px solid #2A3B5A;border-top-color:#C9A227;border-radius:50%;animation:spin 0.8s linear infinite;"></div>
+  <div style="margin-top:16px;font-size:13px;color:#7A8BAD;">Connecting to live database…</div>
+  <style>@keyframes spin{to{transform:rotate(360deg);}}</style>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+// DATA
+// ══════════════════════════════════════════════════════════
+var DEFAULT_STAFF_LIST = [
+  'Lakiera (H/O Ofc Tobiel)','Laura','Amaiya','Officer Sha\'cal','Hadassah',
+  'Akima (H/O Ofc Mishael)','Judea (H/O Ofc Azriel)','Oseia (H/O Ofc Ananias)',
+  'Officer Mikhael','Officer Ananias','Lois (H/O Bro Nerias)',
+  'Rickel (H/O Ofc Yeremiah)','Ricaiah (H/O Ofc Yeremiah)','Brother Marc',
+  'Soldier Esaias','Atarah (H/O Ofc Mikhael)','Soldier Tamir',
+  'Avigail (H/O Ofc Markon)','Damaris (H/O Sol Gabriel)','Chana',
+  'Elisheeva (H/O Soldier Onias)','Makayla','Ayah','Aliyah',
+  'Tehilla (H/O Ofc Asa)','Niyaah','Ja\'el (H/O Captain Nashon)','Esther',
+  'Zuri (H/O Ofc O\'shea)','Malyah','Yahyana','Yasmin (H/O Bishop Yawasap)',
+  'Emzara (H/O Ofc Isaiah)','Febe (D/O Bro Isaac)','Brother Azziah','Lily',
+  'Judea (H/O Ofc Yechiel)','Zehavya (H/O Brother James Judah)',
+  'Moriah (H/O Ofc Yechiel)','Brother David','Sister Ahrayel','Sister Chayill'
+];
+
+var TEAM_OPTS = ['Bread','Cold Foods','Hot Foods','Beverage','Leadership Meals','Cleaning','General'];
+
+var TEAM_CFG = {
+  bread:{label:'Bread Team',emoji:'🥖',
+    roles:[
+      {key:'bread-coord',lbl:'Coordinator',desc:'Team lead'},
+      {key:'bread-lead',lbl:'Bread Lead',desc:'Primary handler'},
+      {key:'bread-a1',lbl:'Assistant 1',desc:''},
+      {key:'bread-a2',lbl:'Assistant 2',desc:''},
+      {key:'bread-s1',lbl:'Server 1',desc:'Distribution'},
+      {key:'bread-s2',lbl:'Server 2',desc:'Distribution'},
+    ],
+    tl:[{t:'Pre-Sab',w:'Bread prepared or sourced'},{t:'8:00 AM',w:'Count loaves, set table'},{t:'Service',w:'Distribute to congregation'},{t:'Close',w:'Package remaining bread'}],
+    cl:['Bread counted & accounted for','Table set before service','Serving stations ready','Post-service bread packaged']
+  },
+  cold:{label:'Cold Foods',emoji:'🥪',
+    roles:[
+      {key:'cold-coord',lbl:'Coordinator',desc:'Team lead'},
+      {key:'cold-prep',lbl:'Prep Lead',desc:'Food preparation'},
+      {key:'cold-prep2',lbl:'Prep 2',desc:''},
+      {key:'cold-s1',lbl:'Server 1',desc:''},
+      {key:'cold-s2',lbl:'Server 2',desc:''},
+      {key:'cold-run',lbl:'Runner',desc:'Restock / support'},
+    ],
+    tl:[{t:'Pre-Sab',w:'Salads, sides prepped & chilled'},{t:'11:30 AM',w:'Cold line set and ready'},{t:'12:00 PM',w:'Service opens'},{t:'2:30 PM',w:'Line reset / clean'}],
+    cl:['All cold items below 41°F','Serving line fully stocked','Gloves and utensils in place','Allergy items labeled']
+  },
+  bev:{label:'Beverage',emoji:'🥤',
+    roles:[
+      {key:'bev-coord',lbl:'Coordinator',desc:'Team lead'},
+      {key:'bev-prep',lbl:'Prep 1',desc:'Mix / setup'},
+      {key:'bev-prep2',lbl:'Prep 2',desc:''},
+      {key:'bev-s1',lbl:'Server 1',desc:''},
+      {key:'bev-s2',lbl:'Server 2',desc:''},
+      {key:'bev-ice',lbl:'Restock / Ice',desc:''},
+    ],
+    tl:[{t:'Pre-Sab',w:'Drinks mixed, ice staged'},{t:'11:30 AM',w:'Beverage station ready'},{t:'12:00 PM',w:'Service begins'},{t:'Close',w:'Leftovers stored, station cleaned'}],
+    cl:['Drinks mixed to correct yield','Ice available','Cups and lids stocked','Station cleaned after close']
+  },
+  lead:{label:'Leadership Meals',emoji:'🍽',
+    roles:[
+      {key:'lead-coord',lbl:'Coordinator',desc:'Team lead'},
+      {key:'lead-cook',lbl:'Cook',desc:'Leadership meal cook'},
+      {key:'lead-asst',lbl:'Assistant',desc:''},
+      {key:'lead-run',lbl:'Runner / Delivery',desc:'Deliver to leadership area'},
+    ],
+    tl:[{t:'Pre-Sab',w:'Menu confirmed, ingredients sourced'},{t:'5:00 PM',w:'Meal prepared, held at 140°F+'},{t:'Service',w:'Delivered to leadership area'}],
+    cl:['Leadership count confirmed','Menu confirmed','Meal held at safe temp','Delivered before service']
+  },
+  clean:{label:'Cleaning',emoji:'🧹',
+    roles:[
+      {key:'cl1-lead',lbl:'Session 1 Lead',desc:'After cold foods — by 2:30 PM'},
+      {key:'cl1-surf',lbl:'Surfaces — Sess 1',desc:''},
+      {key:'cl1-floor',lbl:'Floors — Sess 1',desc:''},
+      {key:'cl1-trash',lbl:'Trash/Dishes — Sess 1',desc:''},
+      {key:'cl2-lead',lbl:'Session 2 Lead',desc:'After sale close'},
+      {key:'cl2-equip',lbl:'Equipment — Sess 2',desc:''},
+      {key:'cl2-floor',lbl:'Floors — Sess 2',desc:''},
+      {key:'cl2-trash',lbl:'Trash/Lockdown — Sess 2',desc:''},
+    ],
+    tl:[{t:'2:30 PM',w:'Session 1: Reset after cold foods'},{t:'Close',w:'Session 2: Full lockdown'}],
+    cl:['All surfaces wiped','Floors swept and mopped','Trash removed','Equipment stored','Coordinator signed off']
+  }
+};
+
+var HOT_ROLES=[{k:'prep',l:'Prep Lead'},{k:'s1',l:'Server 1'},{k:'s2',l:'Server 2'},{k:'run',l:'Runner'}];
+
+var DEFAULT_TASKS=[
+  {name:'Shopping / Procurement',time:'Friday AM'},
+  {name:'Inventory Check',time:'Thursday'},
+  {name:'Bread Preparation',time:'Friday PM'},
+  {name:'Leadership Meal Prep',time:'Friday PM'},
+  {name:'Marinades / Seasoning',time:'Thursday PM'},
+  {name:'Produce Prep',time:'Friday AM'},
+  {name:'Ice Procurement',time:'Friday'},
+];
+
+// ══════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════
+var S = {
+  staff:[],          // [{id,name,team,avail}]
+  assign:{},         // {roleKey: staffId}
+  meals:[],          // [{id,name,assign:{prep,s1,s2,run}}]
+  tasks:[],          // [{id,name,worker,time,done}]
+  done:{},           // {teamKey: bool}
+  notes:{},          // {teamKey: str}
+  chk:{},            // {key: bool}
+  fields:{}          // {fieldId: str}
+};
+
+// ══════════════════════════════════════════════════════════
+// FIREBASE REST API — no SDK, works everywhere
+// ══════════════════════════════════════════════════════════
+var FB_URL='https://iuic-gastonia-kitchen-default-rtdb.firebaseio.com/kitchen';
+var _saveTimer=null;
+var _sseSource=null;
+
+function uid(){return 's'+Math.random().toString(36).slice(2,9);}
+
+// Debounced save — writes full state via REST PUT
+function save(){
+  clearTimeout(_saveTimer);
+  _saveTimer=setTimeout(function(){
+    fetch(FB_URL+'.json',{
+      method:'PUT',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(S)
+    }).catch(function(e){console.warn('Save error:',e);showStatus('⚠ Save failed — check connection','red');});
+  },700);
+}
+
+function load(){return false;}
+
+function applyRemote(remote){
+  if(!remote) return false;
+  S.staff=Array.isArray(remote.staff)?remote.staff:(remote.staff?Object.values(remote.staff):[]);
+  S.assign=remote.assign||{};
+  S.meals=Array.isArray(remote.meals)?remote.meals:(remote.meals?Object.values(remote.meals):[]);
+  S.tasks=Array.isArray(remote.tasks)?remote.tasks:(remote.tasks?Object.values(remote.tasks):[]);
+  S.done=remote.done||{};
+  S.notes=remote.notes||{};
+  S.chk=remote.chk||{};
+  S.fields=remote.fields||{};
+  return true;
+}
+
+function reRenderActive(){
+  loadFields();
+  renderDash();
+  var ap=document.querySelector('.page.active');
+  if(ap){
+    var id=ap.id;
+    if(id==='pg-staff')renderStaffTable();
+    else if(id==='pg-presab')renderTasks();
+    else if(id==='pg-bread')renderTeam('bread');
+    else if(id==='pg-cold')renderTeam('cold');
+    else if(id==='pg-hot')renderHot();
+    else if(id==='pg-bev')renderTeam('bev');
+    else if(id==='pg-lead')renderTeam('lead');
+    else if(id==='pg-clean')renderTeam('clean');
+    else if(id==='pg-summary')renderSummary();
+  }
+}
+
+function showStatus(msg,color){
+  var el=document.getElementById('sync-status');
+  if(!el)return;
+  el.textContent=msg;
+  el.style.color=color==='red'?'var(--red)':color==='green'?'var(--green)':'var(--muted)';
+}
+
+function startLiveSync(){
+  // 1. Initial load via REST GET
+  fetch(FB_URL+'.json')
+    .then(function(r){return r.json();})
+    .then(function(remote){
+      if(!remote){
+        // First ever launch — seed defaults
+        S.staff=DEFAULT_STAFF_LIST.map(function(n){return{id:uid(),name:n,team:'General',avail:'yes'};});
+        S.tasks=DEFAULT_TASKS.map(function(t){return{id:uid(),name:t.name,worker:'',time:t.time,done:false};});
+        fetch(FB_URL+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(S)});
+      } else {
+        applyRemote(remote);
+      }
+      reRenderActive();
+      var ov=document.getElementById('loading-overlay');
+      if(ov)ov.style.display='none';
+      showStatus('🟢 Live','green');
+      // 2. Start SSE stream for real-time pushes
+      startSSE();
+    })
+    .catch(function(e){
+      console.warn('Initial load failed:',e);
+      // Fall back to localStorage
+      try{var d=localStorage.getItem('iuic-kos3');if(d){var p=JSON.parse(d);applyRemote(p);}}catch(x){}
+      reRenderActive();
+      var ov=document.getElementById('loading-overlay');
+      if(ov)ov.style.display='none';
+      showStatus('⚠ Offline — local only','red');
+    });
+}
+
+function startSSE(){
+  try{
+    if(_sseSource)_sseSource.close();
+    _sseSource=new EventSource(FB_URL+'.json?timeout=55000&ns=iuic-gastonia-kitchen-default-rtdb&accept=text/event-stream');
+    _sseSource.addEventListener('put',function(e){
+      try{
+        var payload=JSON.parse(e.data);
+        if(payload.path==='/'&&payload.data){
+          applyRemote(payload.data);
+          reRenderActive();
+          showStatus('🟢 Live','green');
+        }
+      }catch(x){}
+    });
+    _sseSource.onerror=function(){
+      showStatus('🟡 Reconnecting…','yellow');
+      // SSE auto-reconnects; poll as fallback every 8s
+      setTimeout(pollFallback,8000);
+    };
+  }catch(e){
+    // SSE not supported — fall back to polling
+    setInterval(pollFallback,8000);
+  }
+}
+
+var _lastPollData='';
+function pollFallback(){
+  fetch(FB_URL+'.json')
+    .then(function(r){return r.json();})
+    .then(function(remote){
+      var str=JSON.stringify(remote);
+      if(str!==_lastPollData){
+        _lastPollData=str;
+        applyRemote(remote);
+        reRenderActive();
+      }
+      showStatus('🟢 Live','green');
+    })
+    .catch(function(){showStatus('⚠ Connection lost','red');});
+}
+
+// ══════════════════════════════════════════════════════════
+// NAV
+// ══════════════════════════════════════════════════════════
+function go(pageId, btnId){
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.remove('active');});
+  document.getElementById(pageId).classList.add('active');
+  var btn=document.getElementById(btnId);
+  if(btn) btn.classList.add('active');
+  // Render page-specific content
+  if(pageId==='pg-summary') renderSummary();
+  if(pageId==='pg-dash') renderDash();
+  if(pageId==='pg-staff') renderStaffTable();
+  if(pageId==='pg-presab') renderTasks();
+  if(pageId==='pg-bread') renderTeam('bread');
+  if(pageId==='pg-cold') renderTeam('cold');
+  if(pageId==='pg-hot') renderHot();
+  if(pageId==='pg-bev') renderTeam('bev');
+  if(pageId==='pg-lead') renderTeam('lead');
+  if(pageId==='pg-clean') renderTeam('clean');
+}
+
+// ══════════════════════════════════════════════════════════
+// HEADER FIELDS
+// ══════════════════════════════════════════════════════════
+function SF(id){
+  S.fields[id]=document.getElementById(id).value;
+  save();
+  if(id==='hdr-date') renderDash();
+}
+function loadFields(){
+  ['hdr-date','hdr-menu','cmd-head','cmd-2ic','cmd-kl'].forEach(function(id){
+    var v=S.fields[id];
+    var el=document.getElementById(id);
+    if(el&&v!==undefined) el.value=v;
+  });
+}
+
+// ══════════════════════════════════════════════════════════
+// STAFF HELPERS
+// ══════════════════════════════════════════════════════════
+function assignedIds(){
+  var out={};
+  Object.values(S.assign).forEach(function(id){if(id)out[id]=true;});
+  S.meals.forEach(function(m){if(m.assign)Object.values(m.assign).forEach(function(id){if(id)out[id]=true;});});
+  return out;
+}
+
+function staffDot(s){
+  if(s.avail==='no') return 'red';
+  if(assignedIds()[s.id]) return 'green';
+  return 'yellow';
+}
+
+function workerStats(){
+  var tot=S.staff.length;
+  var una=S.staff.filter(function(s){return s.avail==='no';}).length;
+  var ids=assignedIds();
+  var asgn=S.staff.filter(function(s){return ids[s.id]&&s.avail!=='no';}).length;
+  var avl=Math.max(0,tot-una-asgn);
+  return {tot:tot,asgn:asgn,avl:avl,una:una};
+}
+
+function openPositions(){
+  var o=0;
+  Object.keys(TEAM_CFG).forEach(function(tk){
+    TEAM_CFG[tk].roles.forEach(function(r){if(!S.assign[r.key])o++;});
+  });
+  if(!S.assign['hot-coord'])o++;
+  S.meals.forEach(function(m){HOT_ROLES.forEach(function(r){if(!m.assign||!m.assign[r.k])o++;});});
+  return o;
+}
+
+// ══════════════════════════════════════════════════════════
+// STAFF TABLE
+// ══════════════════════════════════════════════════════════
+function renderStaffTable(){
+  var tbody=document.getElementById('staff-tbody');
+  if(!tbody)return;
+  var ids=assignedIds();
+  tbody.innerHTML='';
+  S.staff.forEach(function(s,i){
+    var dot=staffDot(s);
+    var tr=document.createElement('tr');
+    // Team select
+    var teamOpts=TEAM_OPTS.map(function(t){return '<option value="'+t+'"'+(s.team===t?' selected':'')+'>'+t+'</option>';}).join('');
+    // Avail select
+    var avOpts='<option value="yes"'+(s.avail==='yes'?' selected':'')+'>✅ Available</option>'+
+                '<option value="no"'+(s.avail==='no'?' selected':'')+'>🔴 Unavailable</option>';
+    tr.innerHTML=
+      '<td><span class="dot '+dot+'"></span></td>'+
+      '<td><input type="text" value="'+esc(s.name)+'" placeholder="Name" data-sid="'+s.id+'" data-field="name" onblur="updateStaff(this)"></td>'+
+      '<td><select data-sid="'+s.id+'" data-field="team" onchange="updateStaff(this)">'+teamOpts+'</select></td>'+
+      '<td><select data-sid="'+s.id+'" data-field="avail" onchange="updateStaff(this)" class="'+(s.avail==='no'?'av-no':'av-yes')+'">'+avOpts+'</select></td>'+
+      '<td><button class="rm-btn" onclick="removeStaff(\''+s.id+'\')">✕</button></td>';
+    tbody.appendChild(tr);
+  });
+  var c=document.getElementById('staff-count');
+  if(c) c.textContent=S.staff.length+' workers';
+}
+
+function updateStaff(el){
+  var id=el.dataset.sid;
+  var field=el.dataset.field;
+  var val=el.value;
+  var s=S.staff.find(function(x){return x.id===id;});
+  if(!s)return;
+  s[field]=val;
+  save();
+  // Only re-render the dot and avail select styling, not the whole table
+  var tr=el.closest('tr');
+  if(tr){
+    var dot=tr.querySelector('.dot');
+    var newDot=staffDot(s);
+    if(dot){dot.className='dot '+newDot;}
+    var avSel=tr.querySelector('select[data-field="avail"]');
+    if(avSel){avSel.className=s.avail==='no'?'av-no':'av-yes';}
+  }
+  renderDash();
+  updateBadges();
+}
+
+function addStaff(){
+  var ns={id:uid(),name:'',team:'General',avail:'yes'};
+  S.staff.push(ns);
+  save();
+  renderStaffTable();
+  // Focus the new row's name input
+  var tbody=document.getElementById('staff-tbody');
+  if(tbody){
+    var rows=tbody.querySelectorAll('tr');
+    if(rows.length){var inp=rows[rows.length-1].querySelector('input');if(inp)inp.focus();}
+  }
+}
+
+function removeStaff(id){
+  if(!confirm('Remove this worker?'))return;
+  S.staff=S.staff.filter(function(s){return s.id!==id;});
+  Object.keys(S.assign).forEach(function(k){if(S.assign[k]===id)delete S.assign[k];});
+  S.meals.forEach(function(m){if(m.assign)Object.keys(m.assign).forEach(function(k){if(m.assign[k]===id)delete m.assign[k];});});
+  save();
+  renderStaffTable();
+  renderDash();
+  updateBadges();
+}
+
+// ══════════════════════════════════════════════════════════
+// DROPDOWN BUILDER
+// ══════════════════════════════════════════════════════════
+function buildOpts(selId){
+  var ids=assignedIds();
+  var avail=S.staff.filter(function(s){return s.avail!=='no';});
+  var una=S.staff.filter(function(s){return s.avail==='no';});
+  function opt(s){
+    var d=staffDot(s);
+    var dot=d==='green'?'🟢':d==='yellow'?'🟡':'🔴';
+    var suffix=(ids[s.id]&&s.id!==selId)?' (assigned)':'';
+    return '<option value="'+s.id+'"'+(s.id===selId?' selected':'')+'>'+dot+' '+esc(s.name)+suffix+'</option>';
+  }
+  var h='<option value="">— Unassigned —</option>';
+  if(avail.length){h+='<optgroup label="✅ Available">';avail.forEach(function(s){h+=opt(s);});h+='</optgroup>';}
+  if(una.length){h+='<optgroup label="🔴 Unavailable">';una.forEach(function(s){h+=opt(s);});h+='</optgroup>';}
+  return h;
+}
+
+function colorSel(sel){
+  var v=sel.value;
+  if(!v){sel.className='';return;}
+  var s=S.staff.find(function(x){return x.id===v;});
+  if(!s){sel.className='';return;}
+  var d=staffDot(s);
+  sel.className='s-'+d;
+}
+
+// ══════════════════════════════════════════════════════════
+// TEAM PAGE RENDERER
+// ══════════════════════════════════════════════════════════
+function renderTeam(tk){
+  var cfg=TEAM_CFG[tk];
+  var el=document.getElementById('team-'+tk);
+  if(!cfg||!el)return;
+  var notes=S.notes[tk]||'';
+  var isDone=S.done[tk]||false;
+  var asgn=cfg.roles.filter(function(r){return !!S.assign[r.key];}).length;
+  var tot=cfg.roles.length;
+  el.innerHTML='';
+
+  // Notes card
+  var c1=document.createElement('div');c1.className='card';
+  c1.innerHTML='<div class="card-title">Coordinator Notes</div>'+
+    '<textarea class="notes-ta" placeholder="Reminders, special instructions…" onchange="S.notes[\''+tk+'\']=this.value;save()">'+esc(notes)+'</textarea>';
+  el.appendChild(c1);
+
+  // Assignments card
+  var c2=document.createElement('div');c2.className='card';
+  var h='<div class="card-title">Positions — '+asgn+' / '+tot+' Assigned</div>'+
+    '<table class="asgn-tbl"><thead><tr><th>Position</th><th>Assigned Worker</th></tr></thead><tbody>';
+  cfg.roles.forEach(function(r){
+    var cur=S.assign[r.key]||'';
+    h+='<tr><td><div class="role-lbl">'+r.lbl+'</div>'+(r.desc?'<div class="role-desc">'+r.desc+'</div>':'')+'</td>'+
+       '<td><select onchange="setAsgn(\''+tk+'\',\''+r.key+'\',this.value,this)">'+buildOpts(cur)+'</select></td></tr>';
+  });
+  h+='</tbody></table>';
+  c2.innerHTML=h;
+  el.appendChild(c2);
+  c2.querySelectorAll('select').forEach(colorSel);
+
+  // Timeline
+  if(cfg.tl&&cfg.tl.length){
+    var c3=document.createElement('div');c3.className='card';
+    var th='<div class="card-title">Preparation Timeline</div>';
+    cfg.tl.forEach(function(t){th+='<div class="tl-item"><div class="tl-time">'+t.t+'</div><div class="tl-what">'+t.w+'</div></div>';});
+    c3.innerHTML=th;el.appendChild(c3);
+  }
+
+  // Checklist
+  if(cfg.cl&&cfg.cl.length){
+    var c4=document.createElement('div');c4.className='card';
+    var ch='<div class="card-title">Readiness Checklist</div><ul class="chk-list">';
+    cfg.cl.forEach(function(item,i){
+      var k=tk+'-cl-'+i;var ck=S.chk[k]||false;
+      ch+='<li class="'+(ck?'chk-done':'')+'" id="ci-'+k+'"><input type="checkbox" '+(ck?'checked':'')+' onchange="toggleChk(\''+k+'\',this)">'+item+'</li>';
+    });
+    ch+='</ul>';c4.innerHTML=ch;el.appendChild(c4);
+  }
+
+  // Done toggle
+  var cd=document.createElement('div');
+  cd.className='done-toggle'+(isDone?' is-done':'');
+  cd.id='dt-'+tk;
+  cd.innerHTML='<input type="checkbox" '+(isDone?'checked':'')+' onchange="setDone(\''+tk+'\',this.checked)">'+
+    '<span class="done-toggle-lbl">'+(isDone?'✅ '+cfg.label+' marked complete':'Mark team as complete for this week')+'</span>';
+  el.appendChild(cd);
+}
+
+function setAsgn(tk, roleKey, staffId, sel){
+  S.assign[roleKey]=staffId||'';
+  save();
+  colorSel(sel);
+  // Re-render position count in card title
+  var cfg=TEAM_CFG[tk];
+  if(cfg){
+    var asgn=cfg.roles.filter(function(r){return !!S.assign[r.key];}).length;
+    var tot=cfg.roles.length;
+    var el=document.getElementById('team-'+tk);
+    if(el){var ct=el.querySelector('.asgn-tbl')?.closest('.card')?.querySelector('.card-title');if(ct)ct.textContent='Positions — '+asgn+' / '+tot+' Assigned';}
+  }
+  // Update dots in staff table if visible
+  var tbody=document.getElementById('staff-tbody');
+  if(tbody&&tbody.closest('.page.active')){renderStaffTable();}
+  renderDash();
+  updateBadges();
+}
+
+function toggleChk(k,cb){
+  S.chk[k]=cb.checked;save();
+  var li=document.getElementById('ci-'+k);
+  if(li)li.className=cb.checked?'chk-done':'';
+}
+
+function setDone(tk,val){
+  S.done[tk]=val;save();
+  var dt=document.getElementById('dt-'+tk);
+  var cfg=TEAM_CFG[tk];
+  if(dt&&cfg){
+    dt.className='done-toggle'+(val?' is-done':'');
+    dt.querySelector('.done-toggle-lbl').textContent=val?'✅ '+cfg.label+' marked complete':'Mark team as complete for this week';
+  }
+  renderDash();updateBadges();
+}
+
+// ══════════════════════════════════════════════════════════
+// HOT FOODS
+// ══════════════════════════════════════════════════════════
+function renderHot(){
+  var el=document.getElementById('team-hot');
+  if(!el)return;
+  el.innerHTML='';
+
+  // Coord + notes
+  var cn=document.createElement('div');cn.className='card';
+  var cur=S.assign['hot-coord']||'';
+  cn.innerHTML='<div class="card-title">Team Info</div>'+
+    '<div style="margin-bottom:10px;"><div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;">Coordinator</div>'+
+    '<select onchange="setAsgnHotCoord(this.value,this)">'+buildOpts(cur)+'</select></div>'+
+    '<div><div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;">Notes</div>'+
+    '<textarea class="notes-ta" placeholder="Hot foods notes…" onchange="S.notes.hot=this.value;save()">'+esc(S.notes.hot||'')+'</textarea></div>';
+  el.appendChild(cn);
+  cn.querySelector('select').className='';colorSel(cn.querySelector('select'));
+
+  // Empty state
+  if(S.meals.length===0){
+    var em=document.createElement('div');em.className='card';
+    em.style.cssText='text-align:center;padding:28px;color:var(--muted);';
+    em.innerHTML='<div style="font-size:28px;margin-bottom:6px;">🍗</div><div style="font-weight:600;">No meal stations yet</div><div style="font-size:12px;margin-top:4px;">Click "+ Add Meal" above to create your first station.</div>';
+    el.appendChild(em);
+  }
+
+  S.meals.forEach(function(m){
+    var asgn=HOT_ROLES.filter(function(r){return m.assign&&m.assign[r.k];}).length;
+    var div=document.createElement('div');div.className='ms-wrap';
+    var h='<div class="ms-head">'+
+      '<input class="ms-name-input" type="text" value="'+esc(m.name)+'" placeholder="Meal name (e.g. Dominican Chicken)" onblur="updateMealName(\''+m.id+'\',this.value)">'+
+      '<div class="flex-g"><span style="font-size:11px;color:var(--muted);">'+asgn+'/'+HOT_ROLES.length+' assigned</span>'+
+      '<button class="btn btn-danger" onclick="removeMeal(\''+m.id+'\')">Remove</button></div></div>'+
+      '<table class="asgn-tbl"><thead><tr><th>Role</th><th>Worker</th></tr></thead><tbody>';
+    HOT_ROLES.forEach(function(r){
+      var c=(m.assign&&m.assign[r.k])||'';
+      h+='<tr><td class="role-lbl">'+r.l+'</td><td><select onchange="setMealAsgn(\''+m.id+'\',\''+r.k+'\',this.value,this)">'+buildOpts(c)+'</select></td></tr>';
+    });
+    h+='</tbody></table>';
+    div.innerHTML=h;el.appendChild(div);
+    div.querySelectorAll('select').forEach(colorSel);
+  });
+
+  // Checklist
+  var ckItems=['All protein pre-prepped or marinated','Cook stations set up and clean','Holding equipment ready (140°F+)','Serving utensils in place','Food labeled with name and time'];
+  var c4=document.createElement('div');c4.className='card';
+  var ch='<div class="card-title">Hot Foods Checklist</div><ul class="chk-list">';
+  ckItems.forEach(function(item,i){
+    var k='hot-cl-'+i;var ck=S.chk[k]||false;
+    ch+='<li class="'+(ck?'chk-done':'')+'" id="ci-'+k+'"><input type="checkbox" '+(ck?'checked':'')+' onchange="toggleChk(\''+k+'\',this)">'+item+'</li>';
+  });
+  ch+='</ul>';c4.innerHTML=ch;el.appendChild(c4);
+
+  // Done toggle
+  var isDone=S.done.hot||false;
+  var cd=document.createElement('div');
+  cd.className='done-toggle'+(isDone?' is-done':'');
+  cd.id='dt-hot';
+  cd.innerHTML='<input type="checkbox" '+(isDone?'checked':'')+' onchange="setDoneHot(this.checked)">'+
+    '<span class="done-toggle-lbl">'+(isDone?'✅ Hot Foods marked complete':'Mark team as complete for this week')+'</span>';
+  el.appendChild(cd);
+}
+
+function setAsgnHotCoord(staffId,sel){
+  S.assign['hot-coord']=staffId||'';save();colorSel(sel);
+  var tbody=document.getElementById('staff-tbody');
+  if(tbody&&tbody.closest('.page.active')){renderStaffTable();}
+  renderDash();updateBadges();
+}
+
+function updateMealName(id,val){
+  var m=S.meals.find(function(x){return x.id===id;});if(!m)return;m.name=val;save();
+}
+
+function setMealAsgn(msId,roleKey,staffId,sel){
+  var m=S.meals.find(function(x){return x.id===msId;});if(!m)return;
+  if(!m.assign)m.assign={};m.assign[roleKey]=staffId||'';save();
+  colorSel(sel);
+  // Update assigned count label
+  var asgn=HOT_ROLES.filter(function(r){return m.assign[r.k];}).length;
+  var head=sel.closest('.ms-wrap')?.querySelector('.ms-head span');
+  if(head)head.textContent=asgn+'/'+HOT_ROLES.length+' assigned';
+  var tbody=document.getElementById('staff-tbody');
+  if(tbody&&tbody.closest('.page.active')){renderStaffTable();}
+  renderDash();updateBadges();
+}
+
+function addMealStation(){
+  S.meals.push({id:uid(),name:'',assign:{}});save();
+  renderHot();toast('Meal station added');
+}
+
+function removeMeal(id){
+  if(!confirm('Remove this meal station?'))return;
+  S.meals=S.meals.filter(function(m){return m.id!==id;});save();
+  renderHot();renderDash();
+}
+
+function setDoneHot(val){
+  S.done.hot=val;save();
+  var dt=document.getElementById('dt-hot');
+  if(dt){dt.className='done-toggle'+(val?' is-done':'');
+  dt.querySelector('.done-toggle-lbl').textContent=val?'✅ Hot Foods marked complete':'Mark team as complete for this week';}
+  renderDash();updateBadges();
+}
+
+// ══════════════════════════════════════════════════════════
+// PRE-SABBATH TASKS
+// ══════════════════════════════════════════════════════════
+function renderTasks(){
+  var el=document.getElementById('pre-task-list');
+  if(!el)return;
+  el.innerHTML='';
+  if(!S.tasks.length){
+    var em=document.createElement('div');
+    em.style.cssText='text-align:center;padding:20px;color:var(--muted);font-size:13px;';
+    em.innerHTML='No tasks yet. <button class="btn btn-ghost btn-sm" style="margin-left:8px;" onclick="loadDefaultTasks()">Load Defaults</button>';
+    el.appendChild(em);return;
+  }
+  S.tasks.forEach(function(t){
+    var row=document.createElement('div');
+    row.className='task-row'+(t.done?' done-row':'');
+    var wSel='<select onchange="updateTask(\''+t.id+'\',\'worker\',this.value)">'+buildOpts(t.worker||'')+'</select>';
+    row.innerHTML='<span class="tn">'+esc(t.name)+'</span>'+wSel+
+      '<input type="text" value="'+esc(t.time||'')+'" placeholder="e.g. Friday AM" onblur="updateTask(\''+t.id+'\',\'time\',this.value)">'+
+      '<input type="checkbox" class="task-chk" '+(t.done?'checked':'')+' onchange="updateTask(\''+t.id+'\',\'done\',this.checked)">';
+    el.appendChild(row);
+    row.querySelectorAll('select').forEach(colorSel);
+  });
+}
+
+function addPreTask(){
+  S.tasks.push({id:uid(),name:'New Task',worker:'',time:'',done:false});
+  save();renderTasks();
+}
+
+function updateTask(id,field,val){
+  var t=S.tasks.find(function(x){return x.id===id;});if(!t)return;
+  t[field]=val;save();
+  if(field==='done'||field==='worker')renderTasks();
+}
+
+function loadDefaultTasks(){
+  S.tasks=DEFAULT_TASKS.map(function(t){return {id:uid(),name:t.name,worker:'',time:t.time,done:false};});
+  save();renderTasks();
+}
+
+// ══════════════════════════════════════════════════════════
+// DASHBOARD
+// ══════════════════════════════════════════════════════════
+function renderDash(){
+  var d=S.fields['hdr-date']||'';
+  var sub=document.getElementById('dash-sub');
+  if(sub)sub.textContent=d?'Sabbath: '+d:'Set Sabbath Date above';
+
+  var ws=workerStats();var op=openPositions();
+  setV('ds-total',ws.tot);setV('ds-asgn',ws.asgn);setV('ds-avail',ws.avl);setV('ds-unavail',ws.una);setV('ds-open',op);
+
+  var g=document.getElementById('dash-teams');if(!g)return;g.innerHTML='';
+  var allTms=[
+    {key:'bread',lbl:'Bread Team',em:'🥖',roles:TEAM_CFG.bread.roles},
+    {key:'cold',lbl:'Cold Foods',em:'🥪',roles:TEAM_CFG.cold.roles},
+    {key:'hot',lbl:'Hot Foods',em:'🍗',roles:null},
+    {key:'bev',lbl:'Beverage',em:'🥤',roles:TEAM_CFG.bev.roles},
+    {key:'lead',lbl:'Leadership Meals',em:'🍽',roles:TEAM_CFG.lead.roles},
+    {key:'clean',lbl:'Cleaning',em:'🧹',roles:TEAM_CFG.clean.roles},
+  ];
+  allTms.forEach(function(t){
+    var roles=t.roles;
+    var asgn,tot;
+    if(t.key==='hot'){
+      asgn=(S.assign['hot-coord']?1:0)+S.meals.reduce(function(a,m){return a+HOT_ROLES.filter(function(r){return m.assign&&m.assign[r.k];}).length;},0);
+      tot=1+S.meals.length*HOT_ROLES.length;
+    } else {
+      asgn=roles.filter(function(r){return !!S.assign[r.key];}).length;
+      tot=roles.length;
+    }
+    var isDone=S.done[t.key]||false;
+    var pct=tot>0?Math.round(asgn/tot*100):0;
+    var coordKey=t.key+'-coord';
+    var coordId=S.assign[coordKey]||'';
+    var cw=S.staff.find(function(s){return s.id===coordId;});
+    var coordName=cw?cw.name:'Not assigned';
+    var cls=isDone?'done':asgn>0?'partial':'';
+    var card=document.createElement('div');
+    card.className='tc '+cls;
+    card.onclick=function(){go('pg-'+t.key,'nb-'+t.key);};
+    card.innerHTML='<div class="tc-head"><div class="tc-name"><span>'+t.em+'</span>'+t.lbl+'</div><span>'+(isDone?'✅':'')+'</span></div>'+
+      '<div class="tc-coord">Coordinator: <b>'+esc(coordName)+'</b></div>'+
+      '<div class="tc-nums">'+
+        '<div><div class="tcn-val">'+asgn+'</div><div class="tcn-lbl">Assigned</div></div>'+
+        '<div><div class="tcn-val">'+(tot-asgn)+'</div><div class="tcn-lbl">Open</div></div>'+
+        '<div><div class="tcn-val">'+pct+'%</div><div class="tcn-lbl">Filled</div></div>'+
+      '</div>'+
+      '<div class="tc-bar"><div class="tc-fill'+(pct===100?' full':'')+'" style="width:'+pct+'%"></div></div>';
+    g.appendChild(card);
+  });
+  updateBadges();
+}
+
+function updateBadges(){
+  var teams={bread:TEAM_CFG.bread.roles,cold:TEAM_CFG.cold.roles,bev:TEAM_CFG.bev.roles,lead:TEAM_CFG.lead.roles,clean:TEAM_CFG.clean.roles};
+  Object.keys(teams).forEach(function(tk){
+    var bd=document.getElementById('bd-'+tk);if(!bd)return;
+    if(S.done[tk]){bd.textContent='✓';bd.className='nav-badge ok';}
+    else{
+      var a=teams[tk].filter(function(r){return !!S.assign[r.key];}).length;
+      if(a>0){bd.textContent=a+'/'+teams[tk].length;bd.className='nav-badge partial';}
+      else{bd.textContent='—';bd.className='nav-badge';}
+    }
+  });
+  var bh=document.getElementById('bd-hot');if(bh){
+    if(S.done.hot){bh.textContent='✓';bh.className='nav-badge ok';}
+    else{
+      var ha=(S.assign['hot-coord']?1:0)+S.meals.reduce(function(a,m){return a+HOT_ROLES.filter(function(r){return m.assign&&m.assign[r.k];}).length;},0);
+      if(ha>0){bh.textContent=ha;bh.className='nav-badge partial';}
+      else{bh.textContent='—';bh.className='nav-badge';}
+    }
+  }
+}
+
+function setV(id,v){var e=document.getElementById(id);if(e)e.textContent=v;}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
+
+// ══════════════════════════════════════════════════════════
+// SUMMARY
+// ══════════════════════════════════════════════════════════
+function renderSummary(){
+  var ws=workerStats();var op=openPositions();
+  setV('ss-total',ws.tot);setV('ss-asgn',ws.asgn);setV('ss-avail',ws.avl);setV('ss-unavail',ws.una);setV('ss-open',op);
+  // Teams
+  var te=document.getElementById('sum-teams');
+  if(te){te.innerHTML='';
+    ['bread','cold','hot','bev','lead','clean'].forEach(function(tk){
+      var cfg=TEAM_CFG[tk];var lbl=cfg?cfg.label:(tk==='hot'?'Hot Foods':tk);var em=cfg?cfg.emoji:'🍗';
+      var isDone=S.done[tk]||false;
+      var a=0,t=0;
+      if(cfg){a=cfg.roles.filter(function(r){return!!S.assign[r.key];}).length;t=cfg.roles.length;}
+      else{a=(S.assign['hot-coord']?1:0)+S.meals.reduce(function(x,m){return x+HOT_ROLES.filter(function(r){return m.assign&&m.assign[r.k];}).length;},0);t=1+S.meals.length*HOT_ROLES.length;}
+      var row=document.createElement('div');row.className='sum-row';
+      row.innerHTML='<div class="sum-rname">'+em+' '+lbl+'</div>'+
+        '<div class="flex-g"><span style="font-size:12px;color:var(--muted);">'+a+'/'+t+' assigned</span>'+
+        '<span class="badge '+(isDone?'bg':a>0?'by':'bn')+'">'+(isDone?'Complete':a>0?'In Progress':'Not Started')+'</span></div>';
+      te.appendChild(row);
+    });
+  }
+  // Tasks
+  var tk2=document.getElementById('sum-tasks');
+  if(tk2){tk2.innerHTML='';
+    if(!S.tasks.length){tk2.innerHTML='<div style="color:var(--muted);font-size:13px;padding:6px 0;">No pre-sabbath tasks set.</div>';}
+    else{
+      var done=S.tasks.filter(function(t){return t.done;}).length;
+      tk2.innerHTML='<div style="font-size:12px;color:var(--muted);margin-bottom:8px;">'+done+' / '+S.tasks.length+' completed</div>';
+      S.tasks.forEach(function(t){
+        var w=S.staff.find(function(s){return s.id===t.worker;});
+        var wn=w?w.name:'Unassigned';
+        var d=document.createElement('div');
+        d.style.cssText='display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(42,59,90,.4);font-size:13px;';
+        d.innerHTML='<span style="'+(t.done?'text-decoration:line-through;color:var(--muted)':'')+'">'+esc(t.name)+'</span>'+
+          '<span style="color:var(--muted);">'+esc(wn)+' · '+esc(t.time||'—')+'</span>';
+        tk2.appendChild(d);
+      });
+    }
+  }
+  // Staff
+  var sf=document.getElementById('sum-staff');
+  if(sf){sf.innerHTML='';
+    if(!S.staff.length){sf.innerHTML='<div style="color:var(--muted);font-size:13px;padding:6px 0;">No workers in database.</div>';}
+    S.staff.forEach(function(s){
+      var d2=staffDot(s);
+      var div=document.createElement('div');
+      div.style.cssText='display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid rgba(42,59,90,.4);font-size:13px;';
+      div.innerHTML='<span class="dot '+d2+'"></span><span style="font-weight:600;">'+esc(s.name)+'</span>'+
+        '<span style="color:var(--muted);font-size:12px;">'+esc(s.team)+'</span>'+
+        '<span class="badge '+(d2==='green'?'bg':d2==='red'?'br':'by')+'" style="margin-left:auto;">'+(d2==='green'?'Assigned':d2==='red'?'Unavailable':'Available')+'</span>';
+      sf.appendChild(div);
+    });
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+// SAVE COPY / CLEAR WEEK
+// ══════════════════════════════════════════════════════════
+function downloadFilled(){
+  var dateVal=S.fields['hdr-date']||'';
+  var name='iuic-kitchen-ops'+(dateVal?'-'+dateVal.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''):'');
+  var clone=document.documentElement.cloneNode(true);
+  var sc=clone.ownerDocument?clone.ownerDocument.createElement('script'):document.createElement('script');
+  sc.textContent='window._SS='+JSON.stringify(S)+';';
+  clone.querySelector('head').appendChild(sc);
+  var blob=new Blob(['<!DOCTYPE html>\n'+clone.outerHTML],{type:'text/html'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name+'.html';
+  document.body.appendChild(a);a.click();
+  setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},500);
+  toast('Saved copy downloaded');
+}
+
+function clearWeek(){
+  if(!confirm('Start a new week? Assignments, meal stations, tasks, and completion status will be cleared. Staff database is kept.'))return;
+  S.assign={};S.meals=[];S.done={};S.notes={};S.chk={};
+  S.fields['hdr-date']='';S.fields['hdr-menu']='';
+  S.tasks=DEFAULT_TASKS.map(function(t){return{id:uid(),name:t.name,worker:'',time:t.time,done:false};});
+  var d=document.getElementById('hdr-date');if(d)d.value='';
+  var m=document.getElementById('hdr-menu');if(m)m.value='';
+  // Write directly (don't wait for debounce)
+  DB_REF.set(S);
+  go('pg-dash','nb-dash');
+  toast('New week started — synced to all devices');
+}
+
+function toast(msg){
+  var t=document.getElementById('toast');
+  t.textContent=msg;t.style.display='block';
+  clearTimeout(t._h);t._h=setTimeout(function(){t.style.display='none';},2000);
+}
+
+// ══════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════
+function init(){
+  startLiveSync();
+}
+
+init();
+</script>
+</body>
+</html>
