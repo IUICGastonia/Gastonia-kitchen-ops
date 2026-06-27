@@ -1248,6 +1248,8 @@ function setExtraAsgn(tk,exId,staffId,sel){
     renderDash();updateBadges();
   }
 }
+
+function setAsgnHotCoord(staffId,sel){
   S.assign['hot-coord']=staffId||'';save();colorSel(sel);
   var tbody=document.getElementById('staff-tbody');
   if(tbody&&tbody.closest('.page.active')){renderStaffTable();}
