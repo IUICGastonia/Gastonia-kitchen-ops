@@ -200,16 +200,30 @@ select.av-no{border-color:var(--red)!important;background:var(--red-bg)!importan
 .flex-g{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
 
 /* ── TOAST ── */
-#toast{position:fixed;bottom:20px;right:20px;background:var(--card2);border:1px solid var(--border2);color:var(--white);padding:10px 16px;border-radius:8px;font-size:13px;font-weight:500;display:none;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.5);}
+#toast{position:fixed;bottom:70px;right:16px;background:var(--card2);border:1px solid var(--border2);color:var(--white);padding:10px 16px;border-radius:8px;font-size:13px;font-weight:500;display:none;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.5);}
+
+/* ── BOTTOM TAB BAR (mobile) ── */
+.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid var(--border);z-index:200;padding:4px 0 env(safe-area-inset-bottom);}
+.bnav-tabs{display:flex;overflow-x:auto;scrollbar-width:none;}
+.bnav-tabs::-webkit-scrollbar{display:none;}
+.bnav-btn{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 10px;border:none;background:transparent;color:var(--muted);cursor:pointer;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;min-width:56px;}
+.bnav-btn .bi{font-size:18px;line-height:1;}
+.bnav-btn.active{color:var(--gold2);}
+.bnav-badge{background:var(--border2);color:var(--muted);border-radius:99px;font-size:8px;font-weight:700;padding:1px 4px;min-width:14px;text-align:center;line-height:1.4;}
+.bnav-badge.ok{background:var(--green);color:#fff;}
+.bnav-badge.partial{background:var(--yellow);color:#000;}
 
 /* ── MOBILE ── */
-@media(max-width:680px){
+@media(max-width:700px){
   nav.sidenav{display:none;}
+  .bottom-nav{display:block;}
   .header-meta{display:none;}
   .logo-text{display:none;}
   .team-grid{grid-template-columns:1fr;}
   .stat-row{grid-template-columns:repeat(2,1fr);}
-  .task-hdr,.task-row{grid-template-columns:1fr 1fr 80px 28px;}
+  .task-hdr,.task-row{grid-template-columns:1fr 1fr 70px 28px;}
+  .main{padding:14px 14px 80px;}
+  .asgn-tbl td:last-child{width:auto;}
 }
 </style>
 </head>
@@ -271,8 +285,9 @@ select.av-no{border-color:var(--red)!important;background:var(--red-bg)!importan
       <div class="pg-sub" id="dash-sub">Set Sabbath Date above</div>
     </div>
     <div class="flex-g">
-      <button class="btn btn-ghost btn-sm" onclick="go('pg-staff','nb-staff')">Manage Staff</button>
-      <button class="btn btn-gold btn-sm" onclick="go('pg-summary','nb-summary')">Full Summary</button>
+      <button class="btn btn-ghost btn-sm" onclick="go('pg-staff','nb-staff','bn-staff')">Manage Staff</button>
+      <button class="btn btn-gold btn-sm" onclick="go('pg-summary','nb-summary','bn-summary')">Full Summary</button>
+      <button class="btn btn-danger btn-sm" onclick="forceResetDB()" title="Reset & reload all 42 workers">↺ Reset DB</button>
     </div>
   </div>
   <div class="stat-row">
@@ -410,6 +425,11 @@ select.av-no{border-color:var(--red)!important;background:var(--red-bg)!importan
     <div class="card-title">Team Status</div>
     <div id="sum-teams"></div>
   </div>
+  <div class="card" style="margin-bottom:10px;border-color:var(--yellow);">
+    <div class="card-title" style="color:var(--yellow);">🟡 Unassigned — Accountability View</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:10px;">Workers who are available but have no assignment this week.</div>
+    <div id="sum-unassigned"></div>
+  </div>
   <div class="card" style="margin-bottom:10px;">
     <div class="card-title">Pre-Sabbath Tasks</div>
     <div id="sum-tasks"></div>
@@ -423,6 +443,22 @@ select.av-no{border-color:var(--red)!important;background:var(--red-bg)!importan
 </main>
 </div><!-- body-wrap -->
 </div><!-- app -->
+
+<!-- BOTTOM NAV (mobile) -->
+<div class="bottom-nav">
+  <div class="bnav-tabs">
+    <button class="bnav-btn active" id="bn-dash" onclick="go('pg-dash','nb-dash','bn-dash')"><span class="bi">⚡</span>Dash</button>
+    <button class="bnav-btn" id="bn-staff" onclick="go('pg-staff','nb-staff','bn-staff')"><span class="bi">👥</span>Staff</button>
+    <button class="bnav-btn" id="bn-bread" onclick="go('pg-bread','nb-bread','bn-bread')"><span class="bi">🥖</span>Bread<span class="bnav-badge" id="bb-bread">—</span></button>
+    <button class="bnav-btn" id="bn-cold" onclick="go('pg-cold','nb-cold','bn-cold')"><span class="bi">🥪</span>Cold<span class="bnav-badge" id="bb-cold">—</span></button>
+    <button class="bnav-btn" id="bn-hot" onclick="go('pg-hot','nb-hot','bn-hot')"><span class="bi">🍗</span>Hot<span class="bnav-badge" id="bb-hot">—</span></button>
+    <button class="bnav-btn" id="bn-bev" onclick="go('pg-bev','nb-bev','bn-bev')"><span class="bi">🥤</span>Bev<span class="bnav-badge" id="bb-bev">—</span></button>
+    <button class="bnav-btn" id="bn-lead" onclick="go('pg-lead','nb-lead','bn-lead')"><span class="bi">🍽</span>Lead<span class="bnav-badge" id="bb-lead">—</span></button>
+    <button class="bnav-btn" id="bn-clean" onclick="go('pg-clean','nb-clean','bn-clean')"><span class="bi">🧹</span>Clean<span class="bnav-badge" id="bb-clean">—</span></button>
+    <button class="bnav-btn" id="bn-presab" onclick="go('pg-presab','nb-presab','bn-presab')"><span class="bi">📅</span>Prep</button>
+    <button class="bnav-btn" id="bn-summary" onclick="go('pg-summary','nb-summary','bn-summary')"><span class="bi">📋</span>Summary</button>
+  </div>
+</div>
 <div id="toast"></div>
 
 <!-- LOADING OVERLAY -->
@@ -679,13 +715,16 @@ function pollFallback(){
 // ══════════════════════════════════════════════════════════
 // NAV
 // ══════════════════════════════════════════════════════════
-function go(pageId, btnId){
+function go(pageId, btnId, bnId){
   document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
   document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.remove('active');});
+  document.querySelectorAll('.bnav-btn').forEach(function(b){b.classList.remove('active');});
   document.getElementById(pageId).classList.add('active');
-  var btn=document.getElementById(btnId);
-  if(btn) btn.classList.add('active');
-  // Render page-specific content
+  var btn=document.getElementById(btnId);if(btn)btn.classList.add('active');
+  var bn=document.getElementById(bnId||('bn-'+pageId.replace('pg-','')));if(bn)bn.classList.add('active');
+  // Scroll to top
+  var m=document.querySelector('.main');if(m)m.scrollTop=0;
+  // Render page content
   if(pageId==='pg-summary') renderSummary();
   if(pageId==='pg-dash') renderDash();
   if(pageId==='pg-staff') renderStaffTable();
@@ -824,28 +863,61 @@ function removeStaff(id){
 
 // ══════════════════════════════════════════════════════════
 // DROPDOWN BUILDER
+// Green (assigned) → Yellow (available) → Red (unavailable)
+// selId = currently selected staff id (any string or '')
 // ══════════════════════════════════════════════════════════
 function buildOpts(selId){
   var ids=assignedIds();
-  var avail=S.staff.filter(function(s){return s.avail!=='no';});
-  var una=S.staff.filter(function(s){return s.avail==='no';});
+
+  // Categorise every worker
+  var green=[], yellow=[], red=[];
+  S.staff.forEach(function(s){
+    if(s.avail==='no'){
+      red.push(s);
+    } else if(ids[s.id] && s.id!==selId){
+      green.push(s);   // assigned elsewhere
+    } else {
+      yellow.push(s);  // available, not yet assigned
+    }
+  });
+
+  // If this dropdown already has someone selected, they show in yellow pool
+  // (already filtered above because s.id===selId excluded from green)
+
   function opt(s){
-    var d=staffDot(s);
-    var dot=d==='green'?'🟢':d==='yellow'?'🟡':'🔴';
-    var suffix=(ids[s.id]&&s.id!==selId)?' (assigned)':'';
-    return '<option value="'+s.id+'"'+(s.id===selId?' selected':'')+'>'+dot+' '+esc(s.name)+suffix+'</option>';
+    var inGreen=ids[s.id]&&s.id!==selId;
+    var dot=s.avail==='no'?'🔴':inGreen?'🟢':'🟡';
+    var note=s.avail==='no'?' — unavailable':inGreen?' — assigned':'';
+    return '<option value="'+s.id+'"'+(s.id===selId?' selected':'')+'>'+dot+' '+esc(s.name)+note+'</option>';
   }
+
   var h='<option value="">— Unassigned —</option>';
-  if(avail.length){h+='<optgroup label="✅ Available">';avail.forEach(function(s){h+=opt(s);});h+='</optgroup>';}
-  if(una.length){h+='<optgroup label="🔴 Unavailable">';una.forEach(function(s){h+=opt(s);});h+='</optgroup>';}
+
+  if(yellow.length){
+    h+='<optgroup label="🟡 Available — Not Yet Assigned">';
+    yellow.forEach(function(s){h+=opt(s);});
+    h+='</optgroup>';
+  }
+  if(green.length){
+    h+='<optgroup label="🟢 Already Assigned Elsewhere">';
+    green.forEach(function(s){h+=opt(s);});
+    h+='</optgroup>';
+  }
+  if(red.length){
+    h+='<optgroup label="🔴 Unavailable This Sabbath">';
+    red.forEach(function(s){h+=opt(s);});
+    h+='</optgroup>';
+  }
+
   return h;
 }
 
 function colorSel(sel){
   var v=sel.value;
-  if(!v){sel.className='';return;}
+  sel.className='';
+  if(!v) return;
   var s=S.staff.find(function(x){return x.id===v;});
-  if(!s){sel.className='';return;}
+  if(!s) return;
   var d=staffDot(s);
   sel.className='s-'+d;
 }
@@ -1151,22 +1223,48 @@ function renderDash(){
 function updateBadges(){
   var teams={bread:TEAM_CFG.bread.roles,cold:TEAM_CFG.cold.roles,bev:TEAM_CFG.bev.roles,lead:TEAM_CFG.lead.roles,clean:TEAM_CFG.clean.roles};
   Object.keys(teams).forEach(function(tk){
-    var bd=document.getElementById('bd-'+tk);if(!bd)return;
-    if(S.done[tk]){bd.textContent='✓';bd.className='nav-badge ok';}
-    else{
+    var bd=document.getElementById('bd-'+tk);
+    var bb=document.getElementById('bb-'+tk);
+    if(S.done[tk]){
+      if(bd){bd.textContent='✓';bd.className='nav-badge ok';}
+      if(bb){bb.textContent='✓';bb.className='bnav-badge ok';}
+    } else {
       var a=teams[tk].filter(function(r){return !!S.assign[r.key];}).length;
-      if(a>0){bd.textContent=a+'/'+teams[tk].length;bd.className='nav-badge partial';}
-      else{bd.textContent='—';bd.className='nav-badge';}
+      if(a>0){
+        if(bd){bd.textContent=a+'/'+teams[tk].length;bd.className='nav-badge partial';}
+        if(bb){bb.textContent=a;bb.className='bnav-badge partial';}
+      } else {
+        if(bd){bd.textContent='—';bd.className='nav-badge';}
+        if(bb){bb.textContent='—';bb.className='bnav-badge';}
+      }
     }
   });
-  var bh=document.getElementById('bd-hot');if(bh){
-    if(S.done.hot){bh.textContent='✓';bh.className='nav-badge ok';}
-    else{
-      var ha=(S.assign['hot-coord']?1:0)+S.meals.reduce(function(a,m){return a+HOT_ROLES.filter(function(r){return m.assign&&m.assign[r.k];}).length;},0);
-      if(ha>0){bh.textContent=ha;bh.className='nav-badge partial';}
-      else{bh.textContent='—';bh.className='nav-badge';}
+  // Hot
+  var bh=document.getElementById('bd-hot');var bbh=document.getElementById('bb-hot');
+  if(S.done.hot){
+    if(bh){bh.textContent='✓';bh.className='nav-badge ok';}
+    if(bbh){bbh.textContent='✓';bbh.className='bnav-badge ok';}
+  } else {
+    var ha=(S.assign['hot-coord']?1:0)+S.meals.reduce(function(a,m){return a+HOT_ROLES.filter(function(r){return m.assign&&m.assign[r.k];}).length;},0);
+    if(ha>0){
+      if(bh){bh.textContent=ha;bh.className='nav-badge partial';}
+      if(bbh){bbh.textContent=ha;bbh.className='bnav-badge partial';}
+    } else {
+      if(bh){bh.textContent='—';bh.className='nav-badge';}
+      if(bbh){bbh.textContent='—';bbh.className='bnav-badge';}
     }
   }
+}
+
+// Force reset — wipes Firebase and reseeds all 42 workers
+function forceResetDB(){
+  if(!confirm('This will WIPE the database and reload all 42 workers fresh. All assignments will be lost. Continue?'))return;
+  S={staff:[],assign:{},meals:[],tasks:[],done:{},notes:{},chk:{},fields:{}};
+  S.staff=DEFAULT_STAFF_LIST.map(function(n){return{id:uid(),name:n,team:'General',avail:'yes'};});
+  S.tasks=DEFAULT_TASKS.map(function(t){return{id:uid(),name:t.name,worker:'',time:t.time,done:false};});
+  fetch(FB_URL+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(S)})
+    .then(function(){toast('✅ Database reset — 42 workers loaded');reRenderActive();})
+    .catch(function(){toast('⚠ Reset failed — check connection');});
 }
 
 function setV(id,v){var e=document.getElementById(id);if(e)e.textContent=v;}
@@ -1178,7 +1276,8 @@ function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').repla
 function renderSummary(){
   var ws=workerStats();var op=openPositions();
   setV('ss-total',ws.tot);setV('ss-asgn',ws.asgn);setV('ss-avail',ws.avl);setV('ss-unavail',ws.una);setV('ss-open',op);
-  // Teams
+
+  // ── Team Status ──
   var te=document.getElementById('sum-teams');
   if(te){te.innerHTML='';
     ['bread','cold','hot','bev','lead','clean'].forEach(function(tk){
@@ -1194,7 +1293,27 @@ function renderSummary(){
       te.appendChild(row);
     });
   }
-  // Tasks
+
+  // ── Accountability: Unassigned yellow workers ──
+  var ua=document.getElementById('sum-unassigned');
+  if(ua){
+    var ids=assignedIds();
+    var unassigned=S.staff.filter(function(s){return s.avail!=='no'&&!ids[s.id];});
+    if(!unassigned.length){
+      ua.innerHTML='<div style="color:var(--green);font-size:13px;font-weight:600;padding:8px 0;">✅ Everyone is assigned — no one left out.</div>';
+    } else {
+      ua.innerHTML='<div style="color:var(--yellow);font-size:12px;margin-bottom:8px;font-weight:600;">'+unassigned.length+' worker'+(unassigned.length!==1?'s':'')+' available but not assigned:</div>';
+      unassigned.forEach(function(s){
+        var d=document.createElement('div');
+        d.style.cssText='display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(42,59,90,.4);font-size:13px;';
+        d.innerHTML='<span class="dot yellow"></span><span style="font-weight:600;">'+esc(s.name)+'</span>'+
+          '<span class="badge by" style="margin-left:auto;">No Assignment</span>';
+        ua.appendChild(d);
+      });
+    }
+  }
+
+  // ── Pre-Sabbath Tasks ──
   var tk2=document.getElementById('sum-tasks');
   if(tk2){tk2.innerHTML='';
     if(!S.tasks.length){tk2.innerHTML='<div style="color:var(--muted);font-size:13px;padding:6px 0;">No pre-sabbath tasks set.</div>';}
@@ -1212,17 +1331,24 @@ function renderSummary(){
       });
     }
   }
-  // Staff
+
+  // ── Full Staff List: sorted green → yellow → red ──
   var sf=document.getElementById('sum-staff');
   if(sf){sf.innerHTML='';
-    if(!S.staff.length){sf.innerHTML='<div style="color:var(--muted);font-size:13px;padding:6px 0;">No workers in database.</div>';}
-    S.staff.forEach(function(s){
+    if(!S.staff.length){sf.innerHTML='<div style="color:var(--muted);font-size:13px;padding:6px 0;">No workers in database.</div>';return;}
+    var ids2=assignedIds();
+    // Sort: green first, yellow middle, red last
+    var sorted=S.staff.slice().sort(function(a,b){
+      function rank(s){return s.avail==='no'?2:ids2[s.id]?0:1;}
+      return rank(a)-rank(b);
+    });
+    sorted.forEach(function(s){
       var d2=staffDot(s);
       var div=document.createElement('div');
-      div.style.cssText='display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid rgba(42,59,90,.4);font-size:13px;';
-      div.innerHTML='<span class="dot '+d2+'"></span><span style="font-weight:600;">'+esc(s.name)+'</span>'+
-        '<span style="color:var(--muted);font-size:12px;">'+esc(s.team)+'</span>'+
-        '<span class="badge '+(d2==='green'?'bg':d2==='red'?'br':'by')+'" style="margin-left:auto;">'+(d2==='green'?'Assigned':d2==='red'?'Unavailable':'Available')+'</span>';
+      div.style.cssText='display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(42,59,90,.4);font-size:13px;';
+      div.innerHTML='<span class="dot '+d2+'"></span>'+
+        '<span style="font-weight:600;flex:1;">'+esc(s.name)+'</span>'+
+        '<span class="badge '+(d2==='green'?'bg':d2==='red'?'br':'by')+'">'+(d2==='green'?'🟢 Assigned':d2==='red'?'🔴 Unavailable':'🟡 Available')+'</span>';
       sf.appendChild(div);
     });
   }
@@ -1252,10 +1378,10 @@ function clearWeek(){
   S.tasks=DEFAULT_TASKS.map(function(t){return{id:uid(),name:t.name,worker:'',time:t.time,done:false};});
   var d=document.getElementById('hdr-date');if(d)d.value='';
   var m=document.getElementById('hdr-menu');if(m)m.value='';
-  // Write directly (don't wait for debounce)
-  DB_REF.set(S);
-  go('pg-dash','nb-dash');
-  toast('New week started — synced to all devices');
+  fetch(FB_URL+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(S)})
+    .then(function(){toast('✅ New week started — synced to all devices');reRenderActive();})
+    .catch(function(){toast('⚠ Save failed — check connection');});
+  go('pg-dash','nb-dash','bn-dash');
 }
 
 function toast(msg){
