@@ -291,10 +291,10 @@ select.av-no{border-color:var(--red)!important;background:var(--red-bg)!importan
     </div>
   </div>
   <div class="stat-row">
-    <div class="stat"><div class="stat-val" id="ds-total">0</div><div class="stat-lbl">Total Workers</div></div>
-    <div class="stat s-green"><div class="stat-val" id="ds-asgn">0</div><div class="stat-lbl">Assigned</div></div>
-    <div class="stat s-yellow"><div class="stat-val" id="ds-avail">0</div><div class="stat-lbl">Available</div></div>
-    <div class="stat s-red"><div class="stat-val" id="ds-unavail">0</div><div class="stat-lbl">Unavailable</div></div>
+    <div class="stat" onclick="showWorkerModal('all')" style="cursor:pointer;"><div class="stat-val" id="ds-total">0</div><div class="stat-lbl">Total Workers</div></div>
+    <div class="stat s-green" onclick="showWorkerModal('green')" style="cursor:pointer;"><div class="stat-val" id="ds-asgn">0</div><div class="stat-lbl">Assigned ▸</div></div>
+    <div class="stat s-yellow" onclick="showWorkerModal('yellow')" style="cursor:pointer;"><div class="stat-val" id="ds-avail">0</div><div class="stat-lbl">Available ▸</div></div>
+    <div class="stat s-red" onclick="showWorkerModal('red')" style="cursor:pointer;"><div class="stat-val" id="ds-unavail">0</div><div class="stat-lbl">Unavailable ▸</div></div>
     <div class="stat"><div class="stat-val" id="ds-open">0</div><div class="stat-lbl">Open Positions</div></div>
   </div>
   <div class="team-grid" id="dash-teams"></div>
@@ -460,6 +460,17 @@ select.av-no{border-color:var(--red)!important;background:var(--red-bg)!importan
   </div>
 </div>
 <div id="toast"></div>
+
+<!-- WORKER MODAL -->
+<div id="worker-modal" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);" onclick="closeWorkerModal()">
+  <div id="worker-modal-box" style="position:absolute;bottom:0;left:0;right:0;background:var(--card);border-top:3px solid var(--gold);border-radius:16px 16px 0 0;padding:20px;max-height:75vh;overflow-y:auto;" onclick="event.stopPropagation()">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <div id="modal-title" style="font-family:'Archivo',sans-serif;font-stretch:75%;font-weight:800;font-size:16px;color:var(--white);text-transform:uppercase;letter-spacing:.04em;"></div>
+      <button onclick="closeWorkerModal()" style="background:var(--bg3);border:none;color:var(--muted);font-size:18px;width:32px;height:32px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
+    </div>
+    <div id="modal-list"></div>
+  </div>
+</div>
 
 <!-- LOADING OVERLAY -->
 <div id="loading-overlay" style="position:fixed;inset:0;background:#0F1A2E;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;">
@@ -1391,8 +1402,83 @@ function toast(msg){
 }
 
 // ══════════════════════════════════════════════════════════
-// INIT
+// WORKER MODAL — tap a stat card to see who's in it
 // ══════════════════════════════════════════════════════════
+function showWorkerModal(filter){
+  var ids=assignedIds();
+  var titles={
+    green:'🟢 Assigned This Week',
+    yellow:'🟡 Available — Not Assigned',
+    red:'🔴 Unavailable This Sabbath',
+    all:'👥 All Workers'
+  };
+  var workers;
+  if(filter==='green'){
+    workers=S.staff.filter(function(s){return s.avail!=='no'&&ids[s.id];});
+  } else if(filter==='yellow'){
+    workers=S.staff.filter(function(s){return s.avail!=='no'&&!ids[s.id];});
+  } else if(filter==='red'){
+    workers=S.staff.filter(function(s){return s.avail==='no';});
+  } else {
+    workers=S.staff.slice();
+  }
+
+  var dotColor={green:'green',yellow:'yellow',red:'red',all:'gray'};
+  document.getElementById('modal-title').textContent=titles[filter]+' ('+workers.length+')';
+
+  var list=document.getElementById('modal-list');
+  list.innerHTML='';
+
+  if(!workers.length){
+    list.innerHTML='<div style="color:var(--muted);font-size:13px;padding:12px 0;text-align:center;">None in this category</div>';
+  } else {
+    workers.forEach(function(s){
+      var d=staffDot(s);
+      var row=document.createElement('div');
+      row.style.cssText='display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(42,59,90,.5);';
+      // Find what position they're assigned to
+      var assignedTo='';
+      if(ids[s.id]){
+        // Search all roles
+        Object.keys(S.assign).forEach(function(k){
+          if(S.assign[k]===s.id){
+            // Find role label
+            var found=false;
+            Object.keys(TEAM_CFG).forEach(function(tk){
+              TEAM_CFG[tk].roles.forEach(function(r){
+                if(r.key===k){assignedTo=TEAM_CFG[tk].label+' — '+r.lbl;found=true;}
+              });
+            });
+            if(!found&&k==='hot-coord')assignedTo='Hot Foods — Coordinator';
+            if(!found){
+              S.meals.forEach(function(m){
+                HOT_ROLES.forEach(function(r){
+                  if(m.id+'-'+r.k===k||k===m.id+r.k)assignedTo='Hot Foods — '+r.l;
+                });
+              });
+            }
+          }
+        });
+      }
+      row.innerHTML='<span class="dot '+d+'"></span>'+
+        '<div style="flex:1;">'+
+          '<div style="font-weight:600;font-size:13px;color:var(--white);">'+esc(s.name)+'</div>'+
+          (assignedTo?'<div style="font-size:11px;color:var(--green);margin-top:1px;">'+esc(assignedTo)+'</div>':
+           s.avail==='no'?'<div style="font-size:11px;color:var(--red);margin-top:1px;">Not available this week</div>':
+           '<div style="font-size:11px;color:var(--yellow);margin-top:1px;">No assignment yet</div>')+
+        '</div>';
+      list.appendChild(row);
+    });
+  }
+
+  document.getElementById('worker-modal').style.display='block';
+  document.body.style.overflow='hidden';
+}
+
+function closeWorkerModal(){
+  document.getElementById('worker-modal').style.display='none';
+  document.body.style.overflow='';
+}
 function init(){
   startLiveSync();
 }
