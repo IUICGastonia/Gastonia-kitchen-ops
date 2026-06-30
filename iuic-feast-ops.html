@@ -285,7 +285,7 @@ select.av-no{border-color:var(--red)!important;background:var(--red-bg)!importan
 
 <div class="page" id="pg-setup">
   <div class="pg-title arch">🔧 Setup</div>
-  <div class="pg-sub">Tables, chafing dishes, and serving tools per line — plus food warming for the event.</div>
+  <div class="pg-sub">2 members per line handle all setup — plus 3 members for food reheating.</div>
   <div id="team-setup"></div>
 </div>
 
@@ -516,13 +516,8 @@ var SERVING_SHIFTS=[
 var SERVING_SLOTS=3; // 3 members per shift
 
 var SETUP_LINES=[
-  {key:'line1',label:'Line 1'},
-  {key:'line2',label:'Line 2'},
-];
-var SETUP_TASKS=[
-  {key:'tables',label:'Tables & Tablecloths',slots:2},
-  {key:'chafing',label:'Chafing Dishes / Sternos',slots:2},
-  {key:'tongs',label:'Tongs / Serving Spoons',slots:2},
+  {key:'line1',label:'Line 1',slots:2,desc:'Tables, tablecloths, chafing dishes/sternos, tongs & serving spoons'},
+  {key:'line2',label:'Line 2',slots:2,desc:'Tables, tablecloths, chafing dishes/sternos, tongs & serving spoons'},
 ];
 var SETUP_FOOD_SLOTS=3; // whole-event task, not per line
 
@@ -1052,13 +1047,11 @@ function memberRoles(sid){
     });
   });
   SETUP_LINES.forEach(function(line){
-    SETUP_TASKS.forEach(function(task){
-      (S.setupAssign[line.key+'-'+task.key]||[]).forEach(function(v,i){
-        add(v,'Setup — '+line.label+' '+task.label+' Member '+(i+1));
-      });
+    (S.setupAssign[line.key]||[]).forEach(function(v,i){
+      add(v,'Setup — '+line.label+' Member '+(i+1));
     });
   });
-  (S.setupAssign['food-warm']||[]).forEach(function(v,i){add(v,'Setup — Food Set Out & Warmed Up Member '+(i+1));});
+  (S.setupAssign['food-warm']||[]).forEach(function(v,i){add(v,'Setup — Food Set Out & Reheated Member '+(i+1));});
   CLEAN_ROLES.forEach(function(r){add(S.assign[r.key],'Cleaning Team — '+r.lbl);});
   Object.keys(S.extras||{}).forEach(function(tk){
     (S.extras[tk]||[]).forEach(function(ex){add(ex.assignId,'Additional — '+(ex.label||'Custom Position'));});
@@ -1172,7 +1165,7 @@ function renderDash(){
     {key:'bread',lbl:'Bread Team',em:'🥖',asgn:0,tot:2},
     {key:'bev',lbl:'Beverage Team',em:'🥤',asgn:0,tot:BEV_ROLES.length},
     {key:'serve',lbl:'Serving Lines',em:'🍴',asgn:0,tot:SERVING_LINES.length*SERVING_SHIFTS.length*SERVING_SLOTS},
-    {key:'setup',lbl:'Setup',em:'🔧',asgn:0,tot:SETUP_LINES.length*SETUP_TASKS.reduce(function(a,t){return a+t.slots;},0)+SETUP_FOOD_SLOTS},
+    {key:'setup',lbl:'Setup',em:'🔧',asgn:0,tot:SETUP_LINES.reduce(function(a,l){return a+l.slots;},0)+SETUP_FOOD_SLOTS},
     {key:'clean',lbl:'Cleaning Team',em:'🧹',asgn:0,tot:CLEAN_ROLES.length},
   ];
   teams[0].asgn=(S.assign['meal-lead']?1:0);
@@ -1188,10 +1181,8 @@ function renderDash(){
     });
   });
   SETUP_LINES.forEach(function(line){
-    SETUP_TASKS.forEach(function(task){
-      var arr=S.setupAssign[line.key+'-'+task.key]||[];
-      teams[4].asgn+=arr.filter(function(v){return v&&v!=='';}).length;
-    });
+    var arr=S.setupAssign[line.key]||[];
+    teams[4].asgn+=arr.filter(function(v){return v&&v!=='';}).length;
   });
   teams[4].asgn+=(S.setupAssign['food-warm']||[]).filter(function(v){return v&&v!=='';}).length;
   teams[5].asgn=CLEAN_ROLES.filter(function(r){return!!S.assign[r.key];}).length;
@@ -1460,46 +1451,34 @@ function renderSetup(){
     '<textarea class="notes-ta" placeholder="Setup notes…" onchange="S.notes.setup=this.value;save()">'+esc(S.notes.setup||'')+'</textarea>';
   el.appendChild(c1);
 
-  // Per-line tasks: Tables, Chafing Dishes, Tongs/Spoons
+  // 2 members per line — handles tables, tablecloths, chafing dishes/sternos, tongs & spoons together
   SETUP_LINES.forEach(function(line){
-    var lineAsgn=0,lineTot=0;
-    SETUP_TASKS.forEach(function(task){
-      var arr=S.setupAssign[line.key+'-'+task.key]||[];
-      lineTot+=task.slots;
-      lineAsgn+=arr.filter(function(v){return v&&v!=='';}).length;
-    });
+    var arr=S.setupAssign[line.key]||[];
+    var lineAsgn=arr.filter(function(v){return v&&v!=='';}).length;
 
     var lc=document.createElement('div');lc.className='card';
-    var lh='<div class="card-title">'+line.label+' — '+lineAsgn+'/'+lineTot+' Assigned</div>';
-
-    SETUP_TASKS.forEach(function(task){
-      var assignKey=line.key+'-'+task.key;
-      var arr=S.setupAssign[assignKey]||[];
-
-      lh+='<div class="shift-block">'+
-        '<div class="shift-header"><span class="shift-title">'+task.label+'</span></div>'+
-        '<table class="asgn-tbl"><thead><tr><th>Slot</th><th>Assigned Member</th></tr></thead><tbody>';
-      for(var i=0;i<task.slots;i++){
-        var cv=arr[i]||'';
-        lh+='<tr><td class="role-lbl">'+task.label+' — Member '+(i+1)+'</td>'+
-            '<td>'+pickerTrigger(cv,'setSetupAsgn',[assignKey,i])+'</td></tr>';
-      }
-      lh+='</tbody></table></div>';
-    });
-
+    var lh='<div class="card-title">'+line.label+' — '+lineAsgn+'/'+line.slots+' Assigned</div>'+
+      '<div style="font-size:11px;color:var(--muted);margin-bottom:10px;">'+line.desc+'</div>'+
+      '<table class="asgn-tbl"><thead><tr><th>Slot</th><th>Assigned Member</th></tr></thead><tbody>';
+    for(var i=0;i<line.slots;i++){
+      var cv=arr[i]||'';
+      lh+='<tr><td class="role-lbl">'+line.label+' — Member '+(i+1)+'</td>'+
+          '<td>'+pickerTrigger(cv,'setSetupAsgn',[line.key,i])+'</td></tr>';
+    }
+    lh+='</tbody></table>';
     lc.innerHTML=lh;el.appendChild(lc);
   });
 
-  // Whole-event task: Food Set Out & Warmed Up
+  // Whole-event task: Food Reheating
   var foodArr=S.setupAssign['food-warm']||[];
   var foodAsgn=foodArr.filter(function(v){return v&&v!=='';}).length;
   var fc=document.createElement('div');fc.className='card';
-  var fh='<div class="card-title">Food Set Out & Warmed Up — '+foodAsgn+'/'+SETUP_FOOD_SLOTS+' Assigned</div>'+
+  var fh='<div class="card-title">Food Set Out & Reheated — '+foodAsgn+'/'+SETUP_FOOD_SLOTS+' Assigned</div>'+
     '<div style="font-size:11px;color:var(--muted);margin-bottom:10px;">Whole-event task — not split by serving line.</div>'+
     '<table class="asgn-tbl"><thead><tr><th>Slot</th><th>Assigned Member</th></tr></thead><tbody>';
   for(var i=0;i<SETUP_FOOD_SLOTS;i++){
     var cv2=foodArr[i]||'';
-    fh+='<tr><td class="role-lbl">Food Set Out — Member '+(i+1)+'</td>'+
+    fh+='<tr><td class="role-lbl">Food Reheat — Member '+(i+1)+'</td>'+
         '<td>'+pickerTrigger(cv2,'setSetupAsgn',['food-warm',i])+'</td></tr>';
   }
   fh+='</tbody></table>';
@@ -1652,11 +1631,9 @@ function updateBadges(){
   setBadge('serve',serveAsgn,serveTot,S.done.serve);
   var setupAsgn=0,setupTot=0;
   SETUP_LINES.forEach(function(line){
-    SETUP_TASKS.forEach(function(task){
-      var arr=S.setupAssign[line.key+'-'+task.key]||[];
-      setupTot+=task.slots;
-      setupAsgn+=arr.filter(function(v){return v&&v!=='';}).length;
-    });
+    var arr=S.setupAssign[line.key]||[];
+    setupTot+=line.slots;
+    setupAsgn+=arr.filter(function(v){return v&&v!=='';}).length;
   });
   var foodArr2=S.setupAssign['food-warm']||[];
   setupTot+=SETUP_FOOD_SLOTS;
@@ -1711,10 +1688,8 @@ function renderSummary(){
     });
   });
   SETUP_LINES.forEach(function(line){
-    SETUP_TASKS.forEach(function(task){
-      var arr=S.setupAssign[line.key+'-'+task.key]||[];
-      for(var i=0;i<task.slots;i++){if(isOpen(arr[i]))openPos++;}
-    });
+    var arr=S.setupAssign[line.key]||[];
+    for(var i=0;i<line.slots;i++){if(isOpen(arr[i]))openPos++;}
   });
   var foodArr3=S.setupAssign['food-warm']||[];
   for(var i=0;i<SETUP_FOOD_SLOTS;i++){if(isOpen(foodArr3[i]))openPos++;}
@@ -1739,10 +1714,10 @@ function renderSummary(){
       serveAsgnCount+=(S.servingAssign[line.key+'-'+sh.key]||[]).filter(function(v){return v&&v!=='';}).length;
     });});
 
-    var setupAsgnCount=0,setupTotCount=SETUP_LINES.length*SETUP_TASKS.reduce(function(a,t){return a+t.slots;},0)+SETUP_FOOD_SLOTS;
-    SETUP_LINES.forEach(function(line){SETUP_TASKS.forEach(function(task){
-      setupAsgnCount+=(S.setupAssign[line.key+'-'+task.key]||[]).filter(function(v){return v&&v!=='';}).length;
-    });});
+    var setupAsgnCount=0,setupTotCount=SETUP_LINES.reduce(function(a,l){return a+l.slots;},0)+SETUP_FOOD_SLOTS;
+    SETUP_LINES.forEach(function(line){
+      setupAsgnCount+=(S.setupAssign[line.key]||[]).filter(function(v){return v&&v!=='';}).length;
+    });
     setupAsgnCount+=(S.setupAssign['food-warm']||[]).filter(function(v){return v&&v!=='';}).length;
 
     var cleanAsgnCount=CLEAN_ROLES.filter(function(r){return!!S.assign[r.key];}).length;
@@ -1811,13 +1786,11 @@ function renderSummary(){
       });
     });
     SETUP_LINES.forEach(function(line){
-      SETUP_TASKS.forEach(function(task){
-        (S.setupAssign[line.key+'-'+task.key]||[]).forEach(function(sid,i){
-          addRole(sid,'Setup — '+line.label+' '+task.label+' Member '+(i+1));
-        });
+      (S.setupAssign[line.key]||[]).forEach(function(sid,i){
+        addRole(sid,'Setup — '+line.label+' Member '+(i+1));
       });
     });
-    (S.setupAssign['food-warm']||[]).forEach(function(sid,i){addRole(sid,'Setup — Food Set Out & Warmed Up Member '+(i+1));});
+    (S.setupAssign['food-warm']||[]).forEach(function(sid,i){addRole(sid,'Setup — Food Set Out & Reheated Member '+(i+1));});
     CLEAN_ROLES.forEach(function(r){addRole(S.assign[r.key],'Cleaning Team — '+r.lbl);});
     Object.keys(S.extras||{}).forEach(function(tk){
       (S.extras[tk]||[]).forEach(function(ex){
