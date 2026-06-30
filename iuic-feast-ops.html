@@ -134,7 +134,44 @@ select.av-no{border-color:var(--red)!important;background:var(--red-bg)!importan
 .shift-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
 .shift-title{font-family:'Archivo',sans-serif;font-stretch:75%;font-weight:700;font-size:13px;color:var(--gold2);text-transform:uppercase;letter-spacing:.06em;}
 
+/* ── SEARCHABLE PICKER ── */
+.picker-trigger{background:var(--bg3);border:1px solid var(--border);border-radius:5px;color:var(--white);padding:8px 10px;font-family:'Inter',sans-serif;font-size:13px;width:100%;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:6px;text-align:left;}
+.picker-trigger:hover{border-color:var(--gold);}
+.picker-trigger.s-green{border-color:var(--green);background:rgba(34,168,84,.12);}
+.picker-trigger.s-yellow{border-color:var(--yellow);background:rgba(229,168,39,.08);}
+.picker-trigger.s-red{border-color:var(--red);background:rgba(224,80,80,.1);}
+.picker-trigger.s-na{border-color:var(--border2);background:rgba(42,59,90,.3);}
+.picker-trigger-text{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.picker-trigger-arrow{color:var(--muted);font-size:10px;flex-shrink:0;}
+#picker-overlay{display:none;position:fixed;inset:0;z-index:700;background:rgba(0,0,0,.75);backdrop-filter:blur(4px);align-items:flex-end;justify-content:center;}
+#picker-overlay.show{display:flex;}
+.picker-sheet{background:var(--card);border-top:3px solid var(--gold);border-radius:16px 16px 0 0;width:100%;max-width:480px;max-height:78vh;display:flex;flex-direction:column;}
+.picker-sheet-header{padding:16px 16px 10px;border-bottom:1px solid var(--border);}
+.picker-sheet-title{font-family:'Archivo',sans-serif;font-stretch:75%;font-weight:800;font-size:14px;color:var(--white);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;}
+.picker-search{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--white);padding:10px 12px;font-family:'Inter',sans-serif;font-size:15px;}
+.picker-search:focus{outline:none;border-color:var(--gold);}
+.picker-list{overflow-y:auto;flex:1;padding:6px 0;}
+.picker-group-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;padding:10px 16px 4px;}
+.picker-item{display:flex;align-items:center;gap:10px;width:100%;background:transparent;border:none;color:var(--white);padding:11px 16px;font-size:14px;text-align:left;cursor:pointer;}
+.picker-item:hover{background:var(--bg3);}
+.picker-item.selected{background:rgba(201,162,39,.12);}
+.picker-item .pi-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.picker-item .pi-name{flex:1;}
+.picker-item .pi-note{font-size:11px;color:var(--muted);}
+.picker-empty{padding:24px 16px;text-align:center;color:var(--muted);font-size:13px;}
+.picker-close-row{padding:10px 16px;border-top:1px solid var(--border);}
+.picker-close-btn{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--muted);padding:10px;font-family:'Archivo',sans-serif;font-stretch:75%;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.06em;cursor:pointer;}
+
 #toast{position:fixed;bottom:70px;right:16px;background:var(--card2);border:1px solid var(--border2);color:var(--white);padding:10px 16px;border-radius:8px;font-size:13px;font-weight:500;display:none;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.5);}
+
+/* ── MEMBER MODAL ── */
+#member-modal{display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);}
+#member-modal.show{display:block;}
+.member-modal-box{position:absolute;bottom:0;left:0;right:0;background:var(--card);border-top:3px solid var(--gold);border-radius:16px 16px 0 0;padding:20px;max-height:75vh;overflow-y:auto;}
+.member-modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.member-modal-title{font-family:'Archivo',sans-serif;font-stretch:75%;font-weight:800;font-size:16px;color:var(--white);text-transform:uppercase;letter-spacing:.04em;}
+.member-modal-close{background:var(--bg3);border:none;color:var(--muted);font-size:18px;width:32px;height:32px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.member-modal-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(53,122,115,.5);}
 
 .bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid var(--border);z-index:200;padding:4px 0 env(safe-area-inset-bottom);}
 .bnav-tabs{display:flex;overflow-x:auto;scrollbar-width:none;}
@@ -207,9 +244,11 @@ select.av-no{border-color:var(--red)!important;background:var(--red-bg)!importan
   <button class="nav-btn" id="nb-bread" onclick="go('pg-bread','nb-bread','bn-bread')"><span class="nav-icon">🥖</span>Bread Team<span class="nav-badge" id="bd-bread">—</span></button>
   <button class="nav-btn" id="nb-bev" onclick="go('pg-bev','nb-bev','bn-bev')"><span class="nav-icon">🥤</span>Beverage<span class="nav-badge" id="bd-bev">—</span></button>
   <button class="nav-btn" id="nb-serve" onclick="go('pg-serve','nb-serve','bn-serve')"><span class="nav-icon">🍴</span>Serving<span class="nav-badge" id="bd-serve">—</span></button>
+  <button class="nav-btn" id="nb-setup" onclick="go('pg-setup','nb-setup','bn-setup')"><span class="nav-icon">🔧</span>Setup<span class="nav-badge" id="bd-setup">—</span></button>
   <button class="nav-btn" id="nb-clean" onclick="go('pg-clean','nb-clean','bn-clean')"><span class="nav-icon">🧹</span>Cleaning<span class="nav-badge" id="bd-clean">—</span></button>
   <div class="nav-label" style="margin-top:14px;">Manage</div>
   <button class="nav-btn" id="nb-staff" onclick="go('pg-staff','nb-staff','bn-staff')"><span class="nav-icon">👥</span>Team Members</button>
+  <button class="nav-btn" id="nb-summary" onclick="go('pg-summary','nb-summary','bn-summary')"><span class="nav-icon">📋</span>Summary</button>
 </nav>
 
 <main class="main">
@@ -242,6 +281,12 @@ select.av-no{border-color:var(--red)!important;background:var(--red-bg)!importan
   <div class="pg-title arch">🍴 Serving Lines</div>
   <div class="pg-sub">Serving Line 1 and Line 2 — 2 shifts each, 3 members per shift.</div>
   <div id="team-serve"></div>
+</div>
+
+<div class="page" id="pg-setup">
+  <div class="pg-title arch">🔧 Setup</div>
+  <div class="pg-sub">Tables, chafing dishes, and serving tools per line — plus food warming for the event.</div>
+  <div id="team-setup"></div>
 </div>
 
 <div class="page" id="pg-clean">
@@ -281,6 +326,36 @@ select.av-no{border-color:var(--red)!important;background:var(--red-bg)!importan
   </div>
 </div>
 
+<div class="page" id="pg-summary">
+  <div class="flex-b">
+    <div>
+      <div class="pg-title arch">Master Summary</div>
+      <div class="pg-sub">Complete picture — all feast teams, all members.</div>
+    </div>
+    <button class="btn btn-gold" onclick="downloadFilled()">⬇ Save Copy</button>
+  </div>
+  <div class="stat-row" id="sum-stats">
+    <div class="stat"><div class="stat-val" id="ss-total">0</div><div class="stat-lbl">Total Members</div></div>
+    <div class="stat" style="border-color:var(--green);"><div class="stat-val" id="ss-asgn" style="color:var(--green);">0</div><div class="stat-lbl">Assigned</div></div>
+    <div class="stat" style="border-color:var(--yellow);"><div class="stat-val" id="ss-avail" style="color:var(--yellow);">0</div><div class="stat-lbl">Available</div></div>
+    <div class="stat" style="border-color:var(--red);"><div class="stat-val" id="ss-unavail" style="color:var(--red);">0</div><div class="stat-lbl">Unavailable</div></div>
+    <div class="stat"><div class="stat-val" id="ss-open">0</div><div class="stat-lbl">Open Positions</div></div>
+  </div>
+  <div class="card" style="margin-bottom:10px;">
+    <div class="card-title">Team Status</div>
+    <div id="sum-teams"></div>
+  </div>
+  <div class="card" style="margin-bottom:10px;border-color:var(--yellow);">
+    <div class="card-title" style="color:var(--yellow);">🟡 Unassigned — Accountability View</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:10px;">Members who are available but have no assignment this feast.</div>
+    <div id="sum-unassigned"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Full Member List</div>
+    <div id="sum-staff"></div>
+  </div>
+</div>
+
 </main>
 </div>
 
@@ -291,12 +366,37 @@ select.av-no{border-color:var(--red)!important;background:var(--red-bg)!importan
     <button class="bnav-btn" id="bn-bread" onclick="go('pg-bread','nb-bread','bn-bread')"><span class="bi">🥖</span>Bread<span class="bnav-badge" id="bb-bread">—</span></button>
     <button class="bnav-btn" id="bn-bev" onclick="go('pg-bev','nb-bev','bn-bev')"><span class="bi">🥤</span>Bev<span class="bnav-badge" id="bb-bev">—</span></button>
     <button class="bnav-btn" id="bn-serve" onclick="go('pg-serve','nb-serve','bn-serve')"><span class="bi">🍴</span>Serve<span class="bnav-badge" id="bb-serve">—</span></button>
+    <button class="bnav-btn" id="bn-setup" onclick="go('pg-setup','nb-setup','bn-setup')"><span class="bi">🔧</span>Setup<span class="bnav-badge" id="bb-setup">—</span></button>
     <button class="bnav-btn" id="bn-clean" onclick="go('pg-clean','nb-clean','bn-clean')"><span class="bi">🧹</span>Clean<span class="bnav-badge" id="bb-clean">—</span></button>
     <button class="bnav-btn" id="bn-staff" onclick="go('pg-staff','nb-staff','bn-staff')"><span class="bi">👥</span>Members</button>
+    <button class="bnav-btn" id="bn-summary" onclick="go('pg-summary','nb-summary','bn-summary')"><span class="bi">📋</span>Summary</button>
   </div>
 </div>
 
 <div id="toast"></div>
+
+<div id="member-modal" onclick="if(event.target===this)closeMemberModal()">
+  <div class="member-modal-box" onclick="event.stopPropagation()">
+    <div class="member-modal-header">
+      <div class="member-modal-title" id="member-modal-title"></div>
+      <button class="member-modal-close" onclick="closeMemberModal()">✕</button>
+    </div>
+    <div id="member-modal-list"></div>
+  </div>
+</div>
+
+<div id="picker-overlay" onclick="if(event.target===this)closePicker()">
+  <div class="picker-sheet">
+    <div class="picker-sheet-header">
+      <div class="picker-sheet-title" id="picker-title">Select Member</div>
+      <input type="text" class="picker-search" id="picker-search" placeholder="Search by name…" oninput="filterPicker(this.value)" autocomplete="off">
+    </div>
+    <div class="picker-list" id="picker-list"></div>
+    <div class="picker-close-row">
+      <button class="picker-close-btn" onclick="closePicker()">Cancel</button>
+    </div>
+  </div>
+</div>
 
 <div id="pin-modal">
   <div class="pin-box">
@@ -415,6 +515,17 @@ var SERVING_SHIFTS=[
 ];
 var SERVING_SLOTS=3; // 3 members per shift
 
+var SETUP_LINES=[
+  {key:'line1',label:'Line 1'},
+  {key:'line2',label:'Line 2'},
+];
+var SETUP_TASKS=[
+  {key:'tables',label:'Tables & Tablecloths',slots:2},
+  {key:'chafing',label:'Chafing Dishes / Sternos',slots:2},
+  {key:'tongs',label:'Tongs / Serving Spoons',slots:2},
+];
+var SETUP_FOOD_SLOTS=3; // whole-event task, not per line
+
 var CLEAN_ROLES=[
   {key:'cl-coord',lbl:'Coordinator',desc:'Team lead'},
   {key:'cl-wash1',lbl:'Wash 1',desc:'Washing dishes'},
@@ -441,6 +552,7 @@ var S = {
   grillAssign:{},
   servingAssign:{},
   servingTimes:{},
+  setupAssign:{},
   dishNames:{},
   done:{},
   notes:{},
@@ -476,6 +588,7 @@ function applyRemote(remote){
   S.grillAssign=remote.grillAssign||{};
   S.servingAssign=remote.servingAssign||{};
   S.servingTimes=remote.servingTimes||{};
+  S.setupAssign=remote.setupAssign||{};
   S.dishNames=remote.dishNames||{};
   S.done=remote.done||{};
   S.notes=remote.notes||{};
@@ -495,6 +608,8 @@ function reRenderActive(){
     else if(id==='pg-bread')renderBread();
     else if(id==='pg-bev')renderBev();
     else if(id==='pg-serve')renderServe();
+    else if(id==='pg-setup')renderSetup();
+    else if(id==='pg-summary')renderSummary();
     else if(id==='pg-clean')renderClean();
   }
   updateBadges();
@@ -659,7 +774,7 @@ function resetAutoLock(){
   },15*60*1000);
 }
 function disableEditing(){
-  document.querySelectorAll('.asgn-tbl select, .stbl select, .notes-ta, .done-toggle input, .dish-input').forEach(function(el){
+  document.querySelectorAll('.stbl select, .notes-ta, .done-toggle input, .dish-input, .picker-trigger').forEach(function(el){
     el.disabled=true;el.style.opacity='0.5';el.style.cursor='not-allowed';
   });
   document.querySelectorAll('.btn-gold, .btn-danger, .rm-btn').forEach(function(el){
@@ -667,7 +782,7 @@ function disableEditing(){
   });
 }
 function enableEditing(){
-  document.querySelectorAll('.asgn-tbl select, .stbl select, .notes-ta, .done-toggle input, .dish-input').forEach(function(el){
+  document.querySelectorAll('.stbl select, .notes-ta, .done-toggle input, .dish-input, .picker-trigger').forEach(function(el){
     el.disabled=false;el.style.opacity='';el.style.cursor='';
   });
   document.querySelectorAll('.btn-gold, .btn-danger, .rm-btn').forEach(function(el){
@@ -689,6 +804,8 @@ function go(pageId, btnId, bnId){
   if(pageId==='pg-bread')renderBread();
   if(pageId==='pg-bev')renderBev();
   if(pageId==='pg-serve')renderServe();
+  if(pageId==='pg-setup')renderSetup();
+  if(pageId==='pg-summary')renderSummary();
   if(pageId==='pg-clean')renderClean();
   if(!_pinUnlocked) setTimeout(disableEditing,100);
 }
@@ -710,6 +827,7 @@ function assignedIds(){
   Object.values(S.mealAssign).forEach(function(arr){(arr||[]).forEach(function(id){if(id)out[id]=true;});});
   Object.values(S.grillAssign).forEach(function(id){if(id)out[id]=true;});
   Object.values(S.servingAssign).forEach(function(arr){(arr||[]).forEach(function(id){if(id)out[id]=true;});});
+  Object.values(S.setupAssign).forEach(function(arr){(arr||[]).forEach(function(id){if(id)out[id]=true;});});
   Object.values(S.extras||{}).forEach(function(arr){(arr||[]).forEach(function(ex){if(ex.assignId)out[ex.assignId]=true;});});
   return out;
 }
@@ -775,34 +893,232 @@ function removeStaff(id){
   Object.keys(S.mealAssign).forEach(function(k){S.mealAssign[k]=(S.mealAssign[k]||[]).map(function(v){return v===id?'':v;});});
   Object.keys(S.grillAssign).forEach(function(k){if(S.grillAssign[k]===id)delete S.grillAssign[k];});
   Object.keys(S.servingAssign).forEach(function(k){S.servingAssign[k]=(S.servingAssign[k]||[]).map(function(v){return v===id?'':v;});});
+  Object.keys(S.setupAssign).forEach(function(k){S.setupAssign[k]=(S.setupAssign[k]||[]).map(function(v){return v===id?'':v;});});
   save();renderStaffTable();updateBadges();
 }
 
-function buildOpts(selId){
-  var ids=assignedIds();
-  function dot(s){if(s.avail==='no')return '🔴';if(ids[s.id]&&s.id!==selId)return '🟢';return '🟡';}
-  function opt(s){
-    var note=s.avail==='no'?' — unavailable':(ids[s.id]&&s.id!==selId)?' — assigned':'';
-    return '<option value="'+s.id+'"'+(s.id===selId?' selected':'')+'>'+dot(s)+' '+esc(s.name)+note+'</option>';
-  }
-  function srt(arr){return arr.sort(function(a,b){return firstName(a.name).localeCompare(firstName(b.name));});}
-  var yellow=srt(S.staff.filter(function(s){return s.avail!=='no'&&(!ids[s.id]||s.id===selId);}));
-  var green=srt(S.staff.filter(function(s){return s.avail!=='no'&&ids[s.id]&&s.id!==selId;}));
-  var red=srt(S.staff.filter(function(s){return s.avail==='no';}));
-  var h='<option value="">— Unassigned —</option>'+
-        '<option value="__NA__"'+(selId==='__NA__'?' selected':'')+'>⬛ N/A — Not Needed</option>';
-  if(yellow.length){h+='<optgroup label="🟡 Available">';yellow.forEach(function(s){h+=opt(s);});h+='</optgroup>';}
-  if(green.length){h+='<optgroup label="🟢 Already Assigned">';green.forEach(function(s){h+=opt(s);});h+='</optgroup>';}
-  if(red.length){h+='<optgroup label="🔴 Unavailable">';red.forEach(function(s){h+=opt(s);});h+='</optgroup>';}
-  return h;
+// ══════════════════════════════════════════════════════════
+// SEARCHABLE PICKER — replaces native <select> dropdowns
+// ══════════════════════════════════════════════════════════
+var _pickerCallback=null;
+var _pickerCurrentVal='';
+var _pickerAllItems=[];
+
+function pickerLabel(selId){
+  if(!selId)return '— Unassigned —';
+  if(selId==='__NA__')return '⬛ N/A — Not Needed';
+  var s=S.staff.find(function(x){return x.id===selId;});
+  return s?s.name:'— Unassigned —';
 }
-function colorSel(sel){
-  var v=sel.value;sel.className='';sel.style.borderColor='';sel.style.background='';
-  if(!v)return;
-  if(v==='__NA__'){sel.style.borderColor='var(--border2)';sel.style.background='rgba(42,59,90,.3)';return;}
-  var s=S.staff.find(function(x){return x.id===v;});
-  if(!s)return;
-  sel.className='s-'+staffDot(s);
+
+function pickerDotClass(selId){
+  if(!selId)return '';
+  if(selId==='__NA__')return 's-na';
+  var s=S.staff.find(function(x){return x.id===selId;});
+  if(!s)return '';
+  return 's-'+staffDot(s);
+}
+
+// Builds a trigger button (replaces what used to be a <select>)
+// onChangeFn: name of global function to call with new value, e.g. "setAsgn"
+// extraArgs: array of extra args to pass before the new value, e.g. ['bread-lead']
+function pickerTrigger(selId, onChangeFn, extraArgs){
+  var triggerId='pk'+uid();
+  var argsJson=esc(JSON.stringify(extraArgs||[]));
+  return '<button type="button" class="picker-trigger '+pickerDotClass(selId)+'" id="'+triggerId+'" '+
+    'data-curval="'+esc(selId||'')+'" data-fn="'+esc(onChangeFn)+'" data-args="'+argsJson+'" '+
+    'onclick="openPickerFromTrigger(this)">'+
+    '<span class="picker-trigger-text">'+esc(pickerLabel(selId))+'</span>'+
+    '<span class="picker-trigger-arrow">▾</span>'+
+  '</button>';
+}
+
+function updatePickerTrigger(btn, newVal){
+  if(!btn)return;
+  btn.dataset.curval=newVal||'';
+  btn.className='picker-trigger '+pickerDotClass(newVal);
+  var textEl=btn.querySelector('.picker-trigger-text');
+  if(textEl)textEl.textContent=pickerLabel(newVal);
+}
+
+function openPickerFromTrigger(btn){
+  if(btn.disabled)return;
+  var fn=btn.dataset.fn;
+  var args=JSON.parse(btn.dataset.args||'[]');
+  var curVal=btn.dataset.curval||'';
+  openPicker(curVal, function(newVal){
+    var realFn=window[fn];
+    if(typeof realFn==='function'){
+      realFn.apply(null, args.concat([newVal, btn]));
+    }
+  });
+}
+
+function openPicker(selId, callback){
+  if(!_pinUnlocked){
+    toast('🔒 Enter PIN to make changes');
+    openPinModal();
+    return;
+  }
+  _pickerCurrentVal=selId||'';
+  _pickerCallback=callback;
+  document.getElementById('picker-search').value='';
+  buildPickerList('');
+  document.getElementById('picker-overlay').classList.add('show');
+  setTimeout(function(){document.getElementById('picker-search').focus();},150);
+}
+
+function closePicker(){
+  document.getElementById('picker-overlay').classList.remove('show');
+  _pickerCallback=null;
+}
+
+function filterPicker(query){
+  buildPickerList(query);
+}
+
+function buildPickerList(query){
+  var ids=assignedIds();
+  var selId=_pickerCurrentVal;
+  query=(query||'').toLowerCase().trim();
+
+  function matches(s){return !query||s.name.toLowerCase().indexOf(query)!==-1;}
+  function srt(arr){return arr.sort(function(a,b){return firstName(a.name).localeCompare(firstName(b.name));});}
+
+  var yellow=srt(S.staff.filter(function(s){return s.avail!=='no'&&(!ids[s.id]||s.id===selId)&&matches(s);}));
+  var green=srt(S.staff.filter(function(s){return s.avail!=='no'&&ids[s.id]&&s.id!==selId&&matches(s);}));
+  var red=srt(S.staff.filter(function(s){return s.avail==='no'&&matches(s);}));
+
+  var list=document.getElementById('picker-list');
+  var html='';
+
+  if(!query){
+    html+='<button type="button" class="picker-item'+(selId===''?' selected':'')+'" onclick="selectPickerValue(\'\')">'+
+      '<span class="pi-dot" style="background:var(--border2);"></span><span class="pi-name">— Unassigned —</span></button>';
+    html+='<button type="button" class="picker-item'+(selId==='__NA__'?' selected':'')+'" onclick="selectPickerValue(\'__NA__\')">'+
+      '<span class="pi-dot" style="background:var(--border2);"></span><span class="pi-name">⬛ N/A — Not Needed</span></button>';
+  }
+
+  function renderGroup(label,arr,dotColor){
+    if(!arr.length)return;
+    html+='<div class="picker-group-label">'+label+'</div>';
+    arr.forEach(function(s){
+      var note=dotColor==='green'?' <span class="pi-note">— assigned</span>':dotColor==='red'?' <span class="pi-note">— unavailable</span>':'';
+      html+='<button type="button" class="picker-item'+(s.id===selId?' selected':'')+'" onclick="selectPickerValue(\''+s.id+'\')">'+
+        '<span class="pi-dot dot-'+dotColor+'" style="background:var(--'+dotColor+');"></span>'+
+        '<span class="pi-name">'+esc(s.name)+'</span>'+note+
+      '</button>';
+    });
+  }
+  renderGroup('🟡 Available', yellow, 'yellow');
+  renderGroup('🟢 Already Assigned', green, 'green');
+  renderGroup('🔴 Unavailable', red, 'red');
+
+  if(!html||(yellow.length===0&&green.length===0&&red.length===0&&query)){
+    if(yellow.length===0&&green.length===0&&red.length===0){
+      html+='<div class="picker-empty">No matches found</div>';
+    }
+  }
+
+  list.innerHTML=html;
+}
+
+function selectPickerValue(val){
+  var cb=_pickerCallback;
+  closePicker();
+  if(cb)cb(val);
+}
+
+// ══════════════════════════════════════════════════════════
+// MEMBER MODAL — tap a stat box on the dashboard to drill down
+// ══════════════════════════════════════════════════════════
+function memberRoles(sid){
+  var roles=[];
+  function add(v,label){if(v===sid)roles.push(label);}
+
+  add(S.assign['meal-lead'],'Meal Planning — Lead Coordinator');
+  MEAL_CATEGORIES.forEach(function(cat){
+    (S.mealAssign[cat.key]||[]).forEach(function(v,i){add(v,'Meal Planning — '+cat.label+' Member '+(i+1));});
+  });
+  GRILL_STATIONS.forEach(function(st){add(S.grillAssign[st.key],'Meal Planning — '+st.label);});
+  add(S.assign['bread-lead'],'Bread Team — Bread Lead');
+  add(S.assign['bread-asst'],'Bread Team — Assistant');
+  BEV_ROLES.forEach(function(r){add(S.assign[r.key],'Beverage Team — '+r.lbl);});
+  SERVING_LINES.forEach(function(line){
+    SERVING_SHIFTS.forEach(function(sh){
+      (S.servingAssign[line.key+'-'+sh.key]||[]).forEach(function(v,i){
+        add(v,'Serving — '+line.label+' '+sh.label+' Member '+(i+1));
+      });
+    });
+  });
+  SETUP_LINES.forEach(function(line){
+    SETUP_TASKS.forEach(function(task){
+      (S.setupAssign[line.key+'-'+task.key]||[]).forEach(function(v,i){
+        add(v,'Setup — '+line.label+' '+task.label+' Member '+(i+1));
+      });
+    });
+  });
+  (S.setupAssign['food-warm']||[]).forEach(function(v,i){add(v,'Setup — Food Set Out & Warmed Up Member '+(i+1));});
+  CLEAN_ROLES.forEach(function(r){add(S.assign[r.key],'Cleaning Team — '+r.lbl);});
+  Object.keys(S.extras||{}).forEach(function(tk){
+    (S.extras[tk]||[]).forEach(function(ex){add(ex.assignId,'Additional — '+(ex.label||'Custom Position'));});
+  });
+
+  return roles;
+}
+
+function showMemberModal(filter){
+  var ids=assignedIds();
+  var titles={
+    green:'🟢 Assigned This Feast',
+    yellow:'🟡 Available — Not Assigned',
+    red:'🔴 Unavailable This Feast',
+    all:'👥 All Members'
+  };
+  var members;
+  if(filter==='green'){
+    members=S.staff.filter(function(s){return s.avail!=='no'&&ids[s.id];});
+  } else if(filter==='yellow'){
+    members=S.staff.filter(function(s){return s.avail!=='no'&&!ids[s.id];});
+  } else if(filter==='red'){
+    members=S.staff.filter(function(s){return s.avail==='no';});
+  } else {
+    members=S.staff.slice();
+  }
+  members.sort(function(a,b){return firstName(a.name).localeCompare(firstName(b.name));});
+
+  document.getElementById('member-modal-title').textContent=titles[filter]+' ('+members.length+')';
+
+  var list=document.getElementById('member-modal-list');
+  list.innerHTML='';
+
+  if(!members.length){
+    list.innerHTML='<div style="color:var(--muted);font-size:13px;padding:12px 0;text-align:center;">None in this category</div>';
+  } else {
+    members.forEach(function(s){
+      var d=staffDot(s);
+      var roles=memberRoles(s.id);
+      var row=document.createElement('div');
+      row.className='member-modal-row';
+      var roleHtml=roles.length
+        ? roles.map(function(r){return '<div style="font-size:11px;color:var(--green);margin-top:1px;">▸ '+esc(r)+'</div>';}).join('')
+        : (s.avail==='no'?'<div style="font-size:11px;color:var(--red);margin-top:1px;">Not available this feast</div>':'<div style="font-size:11px;color:var(--yellow);margin-top:1px;">No assignment yet</div>');
+      row.innerHTML='<span class="dot '+d+'"></span>'+
+        '<div style="flex:1;">'+
+          '<div style="font-weight:600;font-size:13px;color:var(--white);">'+esc(s.name)+'</div>'+
+          roleHtml+
+        '</div>';
+      list.appendChild(row);
+    });
+  }
+
+  document.getElementById('member-modal').classList.add('show');
+  document.body.style.overflow='hidden';
+}
+
+function closeMemberModal(){
+  document.getElementById('member-modal').classList.remove('show');
+  document.body.style.overflow='';
 }
 
 function renderDash(){
@@ -832,10 +1148,10 @@ function renderDash(){
 
   var statRow=document.createElement('div');statRow.className='stat-row';
   statRow.innerHTML=
-    '<div class="stat"><div class="stat-val">'+tot+'</div><div class="stat-lbl">Total Members</div></div>'+
-    '<div class="stat" style="border-color:var(--green);"><div class="stat-val" style="color:var(--green);">'+asgn+'</div><div class="stat-lbl">Assigned</div></div>'+
-    '<div class="stat" style="border-color:var(--yellow);"><div class="stat-val" style="color:var(--yellow);">'+avail+'</div><div class="stat-lbl">Available</div></div>'+
-    '<div class="stat" style="border-color:var(--red);"><div class="stat-val" style="color:var(--red);">'+unavail+'</div><div class="stat-lbl">Unavailable</div></div>'+
+    '<div class="stat" onclick="showMemberModal(\'all\')" style="cursor:pointer;"><div class="stat-val">'+tot+'</div><div class="stat-lbl">Total Members</div></div>'+
+    '<div class="stat" onclick="showMemberModal(\'green\')" style="cursor:pointer;border-color:var(--green);"><div class="stat-val" style="color:var(--green);">'+asgn+'</div><div class="stat-lbl">Assigned ▸</div></div>'+
+    '<div class="stat" onclick="showMemberModal(\'yellow\')" style="cursor:pointer;border-color:var(--yellow);"><div class="stat-val" style="color:var(--yellow);">'+avail+'</div><div class="stat-lbl">Available ▸</div></div>'+
+    '<div class="stat" onclick="showMemberModal(\'red\')" style="cursor:pointer;border-color:var(--red);"><div class="stat-val" style="color:var(--red);">'+unavail+'</div><div class="stat-lbl">Unavailable ▸</div></div>'+
     '<div class="stat"><div class="stat-val">'+openPos+'</div><div class="stat-lbl">Open Positions</div></div>';
   el.appendChild(statRow);
 
@@ -856,6 +1172,7 @@ function renderDash(){
     {key:'bread',lbl:'Bread Team',em:'🥖',asgn:0,tot:2},
     {key:'bev',lbl:'Beverage Team',em:'🥤',asgn:0,tot:BEV_ROLES.length},
     {key:'serve',lbl:'Serving Lines',em:'🍴',asgn:0,tot:SERVING_LINES.length*SERVING_SHIFTS.length*SERVING_SLOTS},
+    {key:'setup',lbl:'Setup',em:'🔧',asgn:0,tot:SETUP_LINES.length*SETUP_TASKS.reduce(function(a,t){return a+t.slots;},0)+SETUP_FOOD_SLOTS},
     {key:'clean',lbl:'Cleaning Team',em:'🧹',asgn:0,tot:CLEAN_ROLES.length},
   ];
   teams[0].asgn=(S.assign['meal-lead']?1:0);
@@ -870,7 +1187,14 @@ function renderDash(){
       teams[3].asgn+=arr.filter(function(v){return v&&v!=='';}).length;
     });
   });
-  teams[4].asgn=CLEAN_ROLES.filter(function(r){return!!S.assign[r.key];}).length;
+  SETUP_LINES.forEach(function(line){
+    SETUP_TASKS.forEach(function(task){
+      var arr=S.setupAssign[line.key+'-'+task.key]||[];
+      teams[4].asgn+=arr.filter(function(v){return v&&v!=='';}).length;
+    });
+  });
+  teams[4].asgn+=(S.setupAssign['food-warm']||[]).filter(function(v){return v&&v!=='';}).length;
+  teams[5].asgn=CLEAN_ROLES.filter(function(r){return!!S.assign[r.key];}).length;
 
   var grid=document.createElement('div');
   grid.style.cssText='display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-bottom:12px;';
@@ -880,9 +1204,9 @@ function renderDash(){
     var card=document.createElement('div');
     card.style.cssText='background:var(--card);border:1px solid var(--border);border-left:4px solid '+(done?'var(--green)':t.asgn>0?'var(--yellow)':'var(--border2)')+';border-radius:var(--radius);padding:14px 16px;cursor:pointer;';
     card.onclick=function(){
-      var pgMap={meal:'pg-meal',bread:'pg-bread',bev:'pg-bev',serve:'pg-serve',clean:'pg-clean'};
-      var nbMap={meal:'nb-meal',bread:'nb-bread',bev:'nb-bev',serve:'nb-serve',clean:'nb-clean'};
-      var bnMap={meal:'bn-meal',bread:'bn-bread',bev:'bn-bev',serve:'bn-serve',clean:'bn-clean'};
+      var pgMap={meal:'pg-meal',bread:'pg-bread',bev:'pg-bev',serve:'pg-serve',setup:'pg-setup',clean:'pg-clean'};
+      var nbMap={meal:'nb-meal',bread:'nb-bread',bev:'nb-bev',serve:'nb-serve',setup:'nb-setup',clean:'nb-clean'};
+      var bnMap={meal:'bn-meal',bread:'bn-bread',bev:'bn-bev',serve:'bn-serve',setup:'bn-setup',clean:'bn-clean'};
       go(pgMap[t.key],nbMap[t.key],bnMap[t.key]);
     };
     card.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">'+
@@ -915,10 +1239,9 @@ function renderMeal(){
   c2.innerHTML='<div class="card-title">Lead Coordinator</div>'+
     '<table class="asgn-tbl"><thead><tr><th>Position</th><th>Assigned Member</th></tr></thead><tbody>'+
     '<tr><td><div class="role-lbl">Lead Coordinator</div><div class="role-desc">Oversees full feast meal operation</div></td>'+
-    '<td><select onchange="setAsgn(\'meal-lead\',this.value,this)">'+buildOpts(leadCur)+'</select></td></tr>'+
+    '<td>'+pickerTrigger(leadCur,'setAsgn',['meal-lead'])+'</td></tr>'+
     '</tbody></table>';
   el.appendChild(c2);
-  c2.querySelectorAll('select').forEach(colorSel);
 
   MEAL_CATEGORIES.forEach(function(cat){
     var assignedArr=S.mealAssign[cat.key]||[];
@@ -932,11 +1255,10 @@ function renderMeal(){
     for(var i=0;i<cat.slots;i++){
       var cv=assignedArr[i]||'';
       ch+='<tr><td class="role-lbl">'+cat.label+' — Member '+(i+1)+'</td>'+
-          '<td><select onchange="setMealAsgn(\''+cat.key+'\','+i+',this.value,this)">'+buildOpts(cv)+'</select></td></tr>';
+          '<td>'+pickerTrigger(cv,'setMealAsgn',[cat.key,i])+'</td></tr>';
     }
     ch+='</tbody></table>';
     cc.innerHTML=ch;el.appendChild(cc);
-    cc.querySelectorAll('select').forEach(colorSel);
   });
 
   var grillHeader=document.createElement('div');
@@ -952,10 +1274,9 @@ function renderMeal(){
       '<div style="margin-bottom:12px;"><div class="dish-lbl">Dish / Item Being Served</div>'+
       '<input type="text" class="dish-input" value="'+esc(dishVal)+'" placeholder="Type dish here" onblur="setDishName(\'grill-'+station.key+'\',this.value)"></div>'+
       '<table class="asgn-tbl"><thead><tr><th>Position</th><th>Assigned Member</th></tr></thead><tbody>'+
-      '<tr><td class="role-lbl">Assigned To</td><td><select onchange="setGrillAsgn(\''+station.key+'\',this.value,this)">'+buildOpts(cur)+'</select></td></tr>'+
+      '<tr><td class="role-lbl">Assigned To</td><td>'+pickerTrigger(cur,'setGrillAsgn',[station.key])+'</td></tr>'+
       '</tbody></table>';
     el.appendChild(gc);
-    gc.querySelectorAll('select').forEach(colorSel);
   });
 
   renderExtras('meal', el);
@@ -977,7 +1298,7 @@ function setDishName(key,val){
 function setMealAsgn(catKey,idx,staffId,sel){
   if(!S.mealAssign[catKey])S.mealAssign[catKey]=[];
   S.mealAssign[catKey][idx]=staffId||'';
-  save();colorSel(sel);
+  save();updatePickerTrigger(sel,staffId);
   var tbody=document.getElementById('staff-tbody');
   if(tbody&&tbody.closest('.page.active'))renderStaffTable();
   updateBadges();
@@ -985,7 +1306,7 @@ function setMealAsgn(catKey,idx,staffId,sel){
 
 function setGrillAsgn(stationKey,staffId,sel){
   S.grillAssign[stationKey]=staffId||'';
-  save();colorSel(sel);
+  save();updatePickerTrigger(sel,staffId);
   var tbody=document.getElementById('staff-tbody');
   if(tbody&&tbody.closest('.page.active'))renderStaffTable();
   updateBadges();
@@ -1013,11 +1334,10 @@ function renderBread(){
   roles.forEach(function(r){
     var cur=S.assign[r.key]||'';
     h+='<tr><td><div class="role-lbl">'+r.lbl+'</div>'+(r.desc?'<div class="role-desc">'+r.desc+'</div>':'')+'</td>'+
-       '<td><select onchange="setAsgn(\''+r.key+'\',this.value,this)">'+buildOpts(cur)+'</select></td></tr>';
+       '<td>'+pickerTrigger(cur,'setAsgn',[r.key])+'</td></tr>';
   });
   h+='</tbody></table>';
   c2.innerHTML=h;el.appendChild(c2);
-  c2.querySelectorAll('select').forEach(colorSel);
 
   renderExtras('bread', el);
 
@@ -1047,11 +1367,10 @@ function renderBev(){
   BEV_ROLES.forEach(function(r){
     var cur=S.assign[r.key]||'';
     h+='<tr><td><div class="role-lbl">'+r.lbl+'</div>'+(r.desc?'<div class="role-desc">'+r.desc+'</div>':'')+'</td>'+
-       '<td><select onchange="setAsgn(\''+r.key+'\',this.value,this)">'+buildOpts(cur)+'</select></td></tr>';
+       '<td>'+pickerTrigger(cur,'setAsgn',[r.key])+'</td></tr>';
   });
   h+='</tbody></table>';
   c2.innerHTML=h;el.appendChild(c2);
-  c2.querySelectorAll('select').forEach(colorSel);
 
   renderExtras('bev', el);
 
@@ -1099,13 +1418,12 @@ function renderServe(){
       for(var i=0;i<SERVING_SLOTS;i++){
         var cv=arr[i]||'';
         lh+='<tr><td class="role-lbl">'+sh.label+' — Member '+(i+1)+'</td>'+
-            '<td><select onchange="setServeAsgn(\''+assignKey+'\','+i+',this.value,this)">'+buildOpts(cv)+'</select></td></tr>';
+            '<td>'+pickerTrigger(cv,'setServeAsgn',[assignKey,i])+'</td></tr>';
       }
       lh+='</tbody></table></div>';
     });
 
     lc.innerHTML=lh;el.appendChild(lc);
-    lc.querySelectorAll('select').forEach(colorSel);
   });
 
   renderExtras('serve', el);
@@ -1125,7 +1443,82 @@ function setServeTime(timeKey,val){
 function setServeAsgn(assignKey,idx,staffId,sel){
   if(!S.servingAssign[assignKey])S.servingAssign[assignKey]=[];
   S.servingAssign[assignKey][idx]=staffId||'';
-  save();colorSel(sel);
+  save();updatePickerTrigger(sel,staffId);
+  var tbody=document.getElementById('staff-tbody');
+  if(tbody&&tbody.closest('.page.active'))renderStaffTable();
+  updateBadges();
+}
+
+function renderSetup(){
+  var el=document.getElementById('team-setup');
+  if(!el)return;
+  el.innerHTML='';
+  var isDone=S.done.setup||false;
+
+  var c1=document.createElement('div');c1.className='card';
+  c1.innerHTML='<div class="card-title">Coordinator Notes</div>'+
+    '<textarea class="notes-ta" placeholder="Setup notes…" onchange="S.notes.setup=this.value;save()">'+esc(S.notes.setup||'')+'</textarea>';
+  el.appendChild(c1);
+
+  // Per-line tasks: Tables, Chafing Dishes, Tongs/Spoons
+  SETUP_LINES.forEach(function(line){
+    var lineAsgn=0,lineTot=0;
+    SETUP_TASKS.forEach(function(task){
+      var arr=S.setupAssign[line.key+'-'+task.key]||[];
+      lineTot+=task.slots;
+      lineAsgn+=arr.filter(function(v){return v&&v!=='';}).length;
+    });
+
+    var lc=document.createElement('div');lc.className='card';
+    var lh='<div class="card-title">'+line.label+' — '+lineAsgn+'/'+lineTot+' Assigned</div>';
+
+    SETUP_TASKS.forEach(function(task){
+      var assignKey=line.key+'-'+task.key;
+      var arr=S.setupAssign[assignKey]||[];
+
+      lh+='<div class="shift-block">'+
+        '<div class="shift-header"><span class="shift-title">'+task.label+'</span></div>'+
+        '<table class="asgn-tbl"><thead><tr><th>Slot</th><th>Assigned Member</th></tr></thead><tbody>';
+      for(var i=0;i<task.slots;i++){
+        var cv=arr[i]||'';
+        lh+='<tr><td class="role-lbl">'+task.label+' — Member '+(i+1)+'</td>'+
+            '<td>'+pickerTrigger(cv,'setSetupAsgn',[assignKey,i])+'</td></tr>';
+      }
+      lh+='</tbody></table></div>';
+    });
+
+    lc.innerHTML=lh;el.appendChild(lc);
+  });
+
+  // Whole-event task: Food Set Out & Warmed Up
+  var foodArr=S.setupAssign['food-warm']||[];
+  var foodAsgn=foodArr.filter(function(v){return v&&v!=='';}).length;
+  var fc=document.createElement('div');fc.className='card';
+  var fh='<div class="card-title">Food Set Out & Warmed Up — '+foodAsgn+'/'+SETUP_FOOD_SLOTS+' Assigned</div>'+
+    '<div style="font-size:11px;color:var(--muted);margin-bottom:10px;">Whole-event task — not split by serving line.</div>'+
+    '<table class="asgn-tbl"><thead><tr><th>Slot</th><th>Assigned Member</th></tr></thead><tbody>';
+  for(var i=0;i<SETUP_FOOD_SLOTS;i++){
+    var cv2=foodArr[i]||'';
+    fh+='<tr><td class="role-lbl">Food Set Out — Member '+(i+1)+'</td>'+
+        '<td>'+pickerTrigger(cv2,'setSetupAsgn',['food-warm',i])+'</td></tr>';
+  }
+  fh+='</tbody></table>';
+  fc.innerHTML=fh;el.appendChild(fc);
+
+  renderExtras('setup', el);
+
+  var cd=document.createElement('div');
+  cd.className='done-toggle'+(isDone?' is-done':'');
+  cd.id='dt-setup';
+  cd.innerHTML='<input type="checkbox" '+(isDone?'checked':'')+' onchange="setDone(\'setup\',this.checked)">'+
+    '<span class="done-toggle-lbl">'+(isDone?'✅ Setup marked complete':'Mark setup as complete')+'</span>';
+  el.appendChild(cd);
+}
+
+function setSetupAsgn(assignKey,idx,staffId,sel){
+  if(!S.setupAssign[assignKey])S.setupAssign[assignKey]=[];
+  S.setupAssign[assignKey][idx]=staffId||'';
+  save();updatePickerTrigger(sel,staffId);
   var tbody=document.getElementById('staff-tbody');
   if(tbody&&tbody.closest('.page.active'))renderStaffTable();
   updateBadges();
@@ -1149,11 +1542,10 @@ function renderClean(){
   CLEAN_ROLES.forEach(function(r){
     var cur=S.assign[r.key]||'';
     h+='<tr><td><div class="role-lbl">'+r.lbl+'</div>'+(r.desc?'<div class="role-desc">'+r.desc+'</div>':'')+'</td>'+
-       '<td><select onchange="setAsgn(\''+r.key+'\',this.value,this)">'+buildOpts(cur)+'</select></td></tr>';
+       '<td>'+pickerTrigger(cur,'setAsgn',[r.key])+'</td></tr>';
   });
   h+='</tbody></table>';
   c2.innerHTML=h;el.appendChild(c2);
-  c2.querySelectorAll('select').forEach(colorSel);
 
   renderExtras('clean', el);
 
@@ -1166,7 +1558,7 @@ function renderClean(){
 }
 
 function setAsgn(roleKey,staffId,sel){
-  S.assign[roleKey]=staffId||'';save();colorSel(sel);
+  S.assign[roleKey]=staffId||'';save();updatePickerTrigger(sel,staffId);
   var tbody=document.getElementById('staff-tbody');
   if(tbody&&tbody.closest('.page.active'))renderStaffTable();
   updateBadges();
@@ -1177,7 +1569,7 @@ function setDone(key,val){
   var dt=document.getElementById('dt-'+key);
   if(dt){
     dt.className='done-toggle'+(val?' is-done':'');
-    var labels={meal:'Meal Planning',bread:'Bread Team',bev:'Beverage Team',serve:'Serving Lines',clean:'Cleaning Team'};
+    var labels={meal:'Meal Planning',bread:'Bread Team',bev:'Beverage Team',serve:'Serving Lines',setup:'Setup',clean:'Cleaning Team'};
     dt.querySelector('.done-toggle-lbl').textContent=val?'✅ '+labels[key]+' marked complete':'Mark team as complete';
   }
   updateBadges();
@@ -1203,7 +1595,7 @@ function renderExtras(tk, parentEl){
         '</div>'+
         '<div style="margin-bottom:8px;">'+
           '<div class="dish-lbl">Assigned Team Member</div>'+
-          '<select onchange="setExtraAsgn(\''+tk+'\',\''+ex.id+'\',this.value,this)" style="width:100%;">'+buildOpts(ex.assignId||'')+'</select>'+
+          pickerTrigger(ex.assignId||'','setExtraAsgn',[tk,ex.id])+
         '</div>'+
         '<div style="text-align:right;">'+
           '<button class="btn btn-danger btn-sm" onclick="removeExtra(\''+tk+'\',\''+ex.id+'\')">Remove Position</button>'+
@@ -1212,20 +1604,19 @@ function renderExtras(tk, parentEl){
     });
   }
   card.innerHTML=h;parentEl.appendChild(card);
-  card.querySelectorAll('select').forEach(colorSel);
 }
 
 function addExtra(tk){
   if(!S.extras[tk])S.extras[tk]=[];
   S.extras[tk].push({id:uid(),label:'',assignId:''});
   save();
-  if(tk==='meal')renderMeal();else if(tk==='bread')renderBread();else if(tk==='clean')renderClean();
+  if(tk==='meal')renderMeal();else if(tk==='bread')renderBread();else if(tk==='bev')renderBev();else if(tk==='serve')renderServe();else if(tk==='setup')renderSetup();else if(tk==='clean')renderClean();
 }
 function removeExtra(tk,exId){
   if(!S.extras[tk])return;
   S.extras[tk]=S.extras[tk].filter(function(e){return e.id!==exId;});
   save();
-  if(tk==='meal')renderMeal();else if(tk==='bread')renderBread();else if(tk==='clean')renderClean();
+  if(tk==='meal')renderMeal();else if(tk==='bread')renderBread();else if(tk==='bev')renderBev();else if(tk==='serve')renderServe();else if(tk==='setup')renderSetup();else if(tk==='clean')renderClean();
 }
 function updateExtraLabel(tk,exId,val){
   if(!S.extras[tk])return;
@@ -1236,7 +1627,7 @@ function setExtraAsgn(tk,exId,staffId,sel){
   if(!S.extras[tk])return;
   var ex=S.extras[tk].find(function(e){return e.id===exId;});
   if(ex){
-    ex.assignId=staffId||'';save();colorSel(sel);
+    ex.assignId=staffId||'';save();updatePickerTrigger(sel,staffId);
     var tbody=document.getElementById('staff-tbody');
     if(tbody&&tbody.closest('.page.active'))renderStaffTable();
     updateBadges();
@@ -1259,6 +1650,18 @@ function updateBadges(){
     });
   });
   setBadge('serve',serveAsgn,serveTot,S.done.serve);
+  var setupAsgn=0,setupTot=0;
+  SETUP_LINES.forEach(function(line){
+    SETUP_TASKS.forEach(function(task){
+      var arr=S.setupAssign[line.key+'-'+task.key]||[];
+      setupTot+=task.slots;
+      setupAsgn+=arr.filter(function(v){return v&&v!=='';}).length;
+    });
+  });
+  var foodArr2=S.setupAssign['food-warm']||[];
+  setupTot+=SETUP_FOOD_SLOTS;
+  setupAsgn+=foodArr2.filter(function(v){return v&&v!=='';}).length;
+  setBadge('setup',setupAsgn,setupTot,S.done.setup);
   var mealAsgn=(S.assign['meal-lead']?1:0);
   MEAL_CATEGORIES.forEach(function(cat){
     mealAsgn+=(S.mealAssign[cat.key]||[]).filter(function(v){return v&&v!=='';}).length;
@@ -1283,6 +1686,169 @@ function setBadge(key,asgn,tot,done){
   }
 }
 
+function renderSummary(){
+  var ids=assignedIds();
+  var tot=S.staff.length;
+  var unavail=S.staff.filter(function(s){return s.avail==='no';}).length;
+  var asgn=S.staff.filter(function(s){return ids[s.id]&&s.avail!=='no';}).length;
+  var avail=Math.max(0,tot-unavail-asgn);
+
+  var openPos=0;
+  function isOpen(v){return !v||v==='';}
+  if(isOpen(S.assign['meal-lead']))openPos++;
+  MEAL_CATEGORIES.forEach(function(cat){
+    var arr=S.mealAssign[cat.key]||[];
+    for(var i=0;i<cat.slots;i++){if(isOpen(arr[i]))openPos++;}
+  });
+  GRILL_STATIONS.forEach(function(st){if(isOpen(S.grillAssign[st.key]))openPos++;});
+  if(isOpen(S.assign['bread-lead']))openPos++;
+  if(isOpen(S.assign['bread-asst']))openPos++;
+  BEV_ROLES.forEach(function(r){if(isOpen(S.assign[r.key]))openPos++;});
+  SERVING_LINES.forEach(function(line){
+    SERVING_SHIFTS.forEach(function(sh){
+      var arr=S.servingAssign[line.key+'-'+sh.key]||[];
+      for(var i=0;i<SERVING_SLOTS;i++){if(isOpen(arr[i]))openPos++;}
+    });
+  });
+  SETUP_LINES.forEach(function(line){
+    SETUP_TASKS.forEach(function(task){
+      var arr=S.setupAssign[line.key+'-'+task.key]||[];
+      for(var i=0;i<task.slots;i++){if(isOpen(arr[i]))openPos++;}
+    });
+  });
+  var foodArr3=S.setupAssign['food-warm']||[];
+  for(var i=0;i<SETUP_FOOD_SLOTS;i++){if(isOpen(foodArr3[i]))openPos++;}
+  CLEAN_ROLES.forEach(function(r){if(isOpen(S.assign[r.key]))openPos++;});
+
+  setV('ss-total',tot);setV('ss-asgn',asgn);setV('ss-avail',avail);setV('ss-unavail',unavail);setV('ss-open',openPos);
+
+  // Team Status
+  var te=document.getElementById('sum-teams');
+  if(te){
+    te.innerHTML='';
+    var mealAsgnCount=(S.assign['meal-lead']?1:0);
+    MEAL_CATEGORIES.forEach(function(cat){mealAsgnCount+=(S.mealAssign[cat.key]||[]).filter(function(v){return v&&v!=='';}).length;});
+    GRILL_STATIONS.forEach(function(st){if(S.grillAssign[st.key])mealAsgnCount++;});
+    var mealTotCount=1+MEAL_CATEGORIES.reduce(function(a,c){return a+c.slots;},0)+GRILL_STATIONS.length;
+
+    var breadAsgnCount=(S.assign['bread-lead']?1:0)+(S.assign['bread-asst']?1:0);
+    var bevAsgnCount=BEV_ROLES.filter(function(r){return!!S.assign[r.key];}).length;
+
+    var serveAsgnCount=0,serveTotCount=SERVING_LINES.length*SERVING_SHIFTS.length*SERVING_SLOTS;
+    SERVING_LINES.forEach(function(line){SERVING_SHIFTS.forEach(function(sh){
+      serveAsgnCount+=(S.servingAssign[line.key+'-'+sh.key]||[]).filter(function(v){return v&&v!=='';}).length;
+    });});
+
+    var setupAsgnCount=0,setupTotCount=SETUP_LINES.length*SETUP_TASKS.reduce(function(a,t){return a+t.slots;},0)+SETUP_FOOD_SLOTS;
+    SETUP_LINES.forEach(function(line){SETUP_TASKS.forEach(function(task){
+      setupAsgnCount+=(S.setupAssign[line.key+'-'+task.key]||[]).filter(function(v){return v&&v!=='';}).length;
+    });});
+    setupAsgnCount+=(S.setupAssign['food-warm']||[]).filter(function(v){return v&&v!=='';}).length;
+
+    var cleanAsgnCount=CLEAN_ROLES.filter(function(r){return!!S.assign[r.key];}).length;
+
+    var teamsData=[
+      {key:'meal',lbl:'Meal Planning',em:'🍽',a:mealAsgnCount,t:mealTotCount},
+      {key:'bread',lbl:'Bread Team',em:'🥖',a:breadAsgnCount,t:2},
+      {key:'bev',lbl:'Beverage Team',em:'🥤',a:bevAsgnCount,t:BEV_ROLES.length},
+      {key:'serve',lbl:'Serving Lines',em:'🍴',a:serveAsgnCount,t:serveTotCount},
+      {key:'setup',lbl:'Setup',em:'🔧',a:setupAsgnCount,t:setupTotCount},
+      {key:'clean',lbl:'Cleaning Team',em:'🧹',a:cleanAsgnCount,t:CLEAN_ROLES.length},
+    ];
+    teamsData.forEach(function(td){
+      var isD=S.done[td.key]||false;
+      var row=document.createElement('div');
+      row.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:9px 12px;border-bottom:1px solid rgba(53,122,115,.4);';
+      row.innerHTML='<div style="display:flex;align-items:center;gap:8px;font-weight:600;font-size:13px;">'+td.em+' '+td.lbl+'</div>'+
+        '<div style="display:flex;gap:10px;align-items:center;">'+
+        '<span style="font-size:12px;color:var(--muted);">'+td.a+'/'+td.t+' assigned</span>'+
+        '<span class="badge '+(isD?'bg':td.a>0?'by':'bn')+'" style="display:inline-flex;align-items:center;font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px;background:'+(isD?'var(--green-bg)':td.a>0?'var(--yellow-bg)':'rgba(53,122,115,.4)')+';color:'+(isD?'var(--green)':td.a>0?'var(--yellow)':'var(--muted)')+';">'+(isD?'Complete':td.a>0?'In Progress':'Not Started')+'</span>'+
+        '</div>';
+      te.appendChild(row);
+    });
+  }
+
+  // Accountability
+  var ua=document.getElementById('sum-unassigned');
+  if(ua){
+    var unassigned=S.staff.filter(function(s){return s.avail!=='no'&&!ids[s.id];});
+    if(!unassigned.length){
+      ua.innerHTML='<div style="color:var(--green);font-size:13px;font-weight:600;padding:8px 0;">✅ Everyone is assigned — no one left out.</div>';
+    } else {
+      ua.innerHTML='<div style="color:var(--yellow);font-size:12px;margin-bottom:8px;font-weight:600;">'+unassigned.length+' member'+(unassigned.length!==1?'s':'')+' available but not assigned:</div>';
+      unassigned.forEach(function(s){
+        var d=document.createElement('div');
+        d.style.cssText='display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(53,122,115,.4);font-size:13px;';
+        d.innerHTML='<span class="dot yellow"></span><span style="font-weight:600;">'+esc(s.name)+'</span>'+
+          '<span style="margin-left:auto;display:inline-flex;align-items:center;font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px;background:var(--yellow-bg);color:var(--yellow);">No Assignment</span>';
+        ua.appendChild(d);
+      });
+    }
+  }
+
+  // Full Member List
+  var sf=document.getElementById('sum-staff');
+  if(sf){
+    sf.innerHTML='';
+    if(!S.staff.length){sf.innerHTML='<div style="color:var(--muted);font-size:13px;padding:6px 0;">No members in database.</div>';return;}
+
+    var roleMap={};
+    function addRole(sid,role){if(!sid)return;if(!roleMap[sid])roleMap[sid]=[];roleMap[sid].push(role);}
+
+    addRole(S.assign['meal-lead'],'Meal Planning — Lead Coordinator');
+    MEAL_CATEGORIES.forEach(function(cat){
+      (S.mealAssign[cat.key]||[]).forEach(function(sid,i){addRole(sid,'Meal Planning — '+cat.label+' Member '+(i+1));});
+    });
+    GRILL_STATIONS.forEach(function(st){addRole(S.grillAssign[st.key],'Meal Planning — '+st.label);});
+    addRole(S.assign['bread-lead'],'Bread Team — Bread Lead');
+    addRole(S.assign['bread-asst'],'Bread Team — Assistant');
+    BEV_ROLES.forEach(function(r){addRole(S.assign[r.key],'Beverage Team — '+r.lbl);});
+    SERVING_LINES.forEach(function(line){
+      SERVING_SHIFTS.forEach(function(sh){
+        (S.servingAssign[line.key+'-'+sh.key]||[]).forEach(function(sid,i){
+          addRole(sid,'Serving — '+line.label+' '+sh.label+' Member '+(i+1));
+        });
+      });
+    });
+    SETUP_LINES.forEach(function(line){
+      SETUP_TASKS.forEach(function(task){
+        (S.setupAssign[line.key+'-'+task.key]||[]).forEach(function(sid,i){
+          addRole(sid,'Setup — '+line.label+' '+task.label+' Member '+(i+1));
+        });
+      });
+    });
+    (S.setupAssign['food-warm']||[]).forEach(function(sid,i){addRole(sid,'Setup — Food Set Out & Warmed Up Member '+(i+1));});
+    CLEAN_ROLES.forEach(function(r){addRole(S.assign[r.key],'Cleaning Team — '+r.lbl);});
+    Object.keys(S.extras||{}).forEach(function(tk){
+      (S.extras[tk]||[]).forEach(function(ex){
+        if(ex.assignId)addRole(ex.assignId,'Additional — '+(ex.label||'Custom Position'));
+      });
+    });
+
+    var sorted=S.staff.slice().sort(function(a,b){
+      function rank(s){return s.avail==='no'?2:ids[s.id]?0:1;}
+      return rank(a)-rank(b);
+    });
+    sorted.forEach(function(s){
+      var d2=staffDot(s);
+      var roles=roleMap[s.id]||[];
+      var div=document.createElement('div');
+      div.style.cssText='padding:8px 0;border-bottom:1px solid rgba(53,122,115,.4);';
+      var rolesHtml=roles.length
+        ? roles.map(function(r){return '<div style="font-size:11px;color:var(--green);margin-top:2px;">▸ '+esc(r)+'</div>';}).join('')
+        : (d2==='red'?'<div style="font-size:11px;color:var(--red);margin-top:2px;">Not available this feast</div>':'<div style="font-size:11px;color:var(--yellow);margin-top:2px;">No assignment yet</div>');
+      div.innerHTML='<div style="display:flex;align-items:center;gap:10px;">'+
+        '<span class="dot '+d2+'"></span>'+
+        '<span style="font-weight:600;font-size:13px;flex:1;">'+esc(s.name)+'</span>'+
+        '<span style="display:inline-flex;align-items:center;font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px;background:'+(d2==='green'?'var(--green-bg)':d2==='red'?'var(--red-bg)':'var(--yellow-bg)')+';color:'+(d2==='green'?'var(--green)':d2==='red'?'var(--red)':'var(--yellow)')+';">'+(d2==='green'?'🟢 Assigned':d2==='red'?'🔴 Out':'🟡 Available')+'</span>'+
+      '</div>'+rolesHtml;
+      sf.appendChild(div);
+    });
+  }
+}
+
+function setV(id,v){var e=document.getElementById(id);if(e)e.textContent=v;}
+
 function downloadFilled(){
   var eventName=S.fields['hdr-event']||'feast';
   var name='iuic-feast-ops-'+eventName.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
@@ -1299,7 +1865,7 @@ function downloadFilled(){
 
 function clearEvent(){
   if(!confirm('Start a new feast event? Assignments, dish names, and completion status will be cleared. Team roster is kept.'))return;
-  S.assign={};S.mealAssign={};S.grillAssign={};S.servingAssign={};S.servingTimes={};S.dishNames={};S.done={};S.notes={};S.extras={};
+  S.assign={};S.mealAssign={};S.grillAssign={};S.servingAssign={};S.servingTimes={};S.setupAssign={};S.dishNames={};S.done={};S.notes={};S.extras={};
   S.fields['hdr-event']='';S.fields['hdr-date']='';
   var e=document.getElementById('hdr-event');if(e)e.value='';
   var d=document.getElementById('hdr-date');if(d)d.value='';
@@ -1311,7 +1877,7 @@ function clearEvent(){
 
 function forceResetDB(){
   if(!confirm('This will WIPE the feast database and reload the full roster fresh. Continue?'))return;
-  S={staff:[],assign:{},mealAssign:{},grillAssign:{},servingAssign:{},servingTimes:{},dishNames:{},done:{},notes:{},fields:{},extras:{}};
+  S={staff:[],assign:{},mealAssign:{},grillAssign:{},servingAssign:{},servingTimes:{},setupAssign:{},dishNames:{},done:{},notes:{},fields:{},extras:{}};
   S.staff=DEFAULT_STAFF_LIST.map(function(s){return{id:uid(),name:s.name,team:s.team,avail:'yes'};});
   fetch(FB_URL+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(S)})
     .then(function(){toast('✅ Roster reset — 42 team members loaded');reRenderActive();})
