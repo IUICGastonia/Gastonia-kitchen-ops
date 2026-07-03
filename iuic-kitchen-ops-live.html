@@ -598,9 +598,14 @@ var TEAM_CFG = {
       {key:'bev-prep2',lbl:'Prep 2',desc:''},
       {key:'bev-s1',lbl:'Server 1',desc:''},
       {key:'bev-s2',lbl:'Server 2',desc:''},
+      {key:'bev-inventory',lbl:'Beverage Inventory',desc:''},
+      {key:'bev-fridge',lbl:'Refrigerator Cleaning',desc:''},
+      {key:'bev-water',lbl:'Water Station',desc:''},
+      {key:'bev-expo',lbl:'Beverage Expeditor',desc:''},
+      {key:'bev-leaddrinks',lbl:'Leadership Drinks',desc:''},
     ],
-    tl:[{t:'Pre-Sab',w:'Drinks mixed, ice staged'},{t:'11:30 AM',w:'Beverage station ready'},{t:'12:00 PM',w:'Service begins'},{t:'Close',w:'Leftovers stored, station cleaned'}],
-    cl:['Drinks mixed to correct yield','Ice available','Cups and lids stocked','Station cleaned after close']
+    tl:[{t:'Pre-Sab',w:'Iced coffee mixed, ice staged'},{t:'11:30 AM',w:'Beverage station ready'},{t:'12:00 PM',w:'Service begins'},{t:'4:00 PM',w:'Sabbath sales prep'},{t:'5:00 PM',w:'Inventory'},{t:'7:00 PM',w:'Pre-sales written down'},{t:'11:30 PM',w:'Leftovers stored, station cleaned'}],
+    cl:['Iced coffee mixed to correct yield','Ice available','Cups and lids stocked','Sabbath sales drink prep','Water prepared','Station cleaned after close','Hot Coffee and tea bar set up (After Sabbath)']
   },
   lead:{label:'Leadership Meals',emoji:'🍽',
     roles:[
@@ -1042,7 +1047,7 @@ var TEAM_LABEL_MAP={
   bev:'Beverage',lead:'Leadership Meals',clean:'Cleaning',grill:'Grill Team'
 };
 // Teams that can pull from anyone
-var OPEN_TEAMS={hot:true,cold:true};
+var OPEN_TEAMS={hot:true,cold:true,bread:true,bev:true,lead:true,clean:true};
 
 function firstName(name){
   var n=name.replace(/^(Officer|Brother|Sister|Soldier|Captain|Bishop)\s+/i,'');
