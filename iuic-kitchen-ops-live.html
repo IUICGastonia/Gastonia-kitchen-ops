@@ -334,7 +334,7 @@ select.av-no{border-color:var(--red)!important;background:var(--red-bg)!importan
   <div class="card">
     <div class="card-title">ServSafe Certification</div>
     <div class="stat-row">
-      <div class="stat s-green"><div class="stat-val" id="ds-ss-green">0</div><div class="stat-lbl">Active / Good</div></div>
+      <div class="stat s-green" onclick="showWorkerModal('ss-good')" style="cursor:pointer;"><div class="stat-val" id="ds-ss-green">0</div><div class="stat-lbl">Active / Good ▸</div></div>
       <div class="stat s-yellow" onclick="showWorkerModal('ss-expiring')" style="cursor:pointer;"><div class="stat-val" id="ds-ss-yellow">0</div><div class="stat-lbl">Expiring ≤30 Days ▸</div></div>
       <div class="stat s-red" onclick="showWorkerModal('ss-expired')" style="cursor:pointer;"><div class="stat-val" id="ds-ss-red">0</div><div class="stat-lbl">Expired ▸</div></div>
       <div class="stat"><div class="stat-val" id="ds-ss-gray">0</div><div class="stat-lbl">Missing Date</div></div>
@@ -358,6 +358,7 @@ select.av-no{border-color:var(--red)!important;background:var(--red-bg)!importan
       <div class="pg-sub">All 42 team members loaded. Set their team and mark unavailable each week as needed.</div>
     </div>
     <button class="btn btn-gold" onclick="addStaff()">+ Add Worker</button>
+    <button class="btn btn-ghost" onclick="importServSafeData()" title="One-time import of real ServSafe dates">📋 Import ServSafe Data</button>
   </div>
   <div class="card">
     <div class="flex-b" style="margin-bottom:8px;">
@@ -595,6 +596,56 @@ var DEFAULT_STAFF_LIST = [
 ];
 
 var TEAM_OPTS = ['Bread','Cold Foods','Hot Foods','Beverage','Leadership Meals','Cleaning','Grill Team','General'];
+
+// ── ServSafe import data — sourced from Michael's tracking spreadsheet (as of 7/5/2026) ──
+// Only expiration dates are stored on the staff record; status/days-remaining are always
+// computed live so this import never needs to be re-run unless new certifications come in.
+var SERVSAFE_IMPORT_DATA = [
+  {name:"Ahrayel",                          expiry:"2029-05-06"},
+  {name:"Chayil",                           expiry:"2029-04-02"},
+  {name:"Lakiera (H/O Ofc Tobiel)",         expiry:"2029-01-14"},
+  {name:"Laura",                            expiry:"2028-10-15"},
+  {name:"Amaiya",                           expiry:"2028-09-30"},
+  {name:"Soldier Sha'cal",                  expiry:"2028-09-07"},
+  {name:"Hadassah",                         expiry:"2028-08-13"},
+  {name:"Akima (H/O Ofc Mishael)",          expiry:"2028-08-07"},
+  {name:"Judea (H/O Ofc Azriel)",           expiry:"2028-08-07"},
+  {name:"Oseia (H/O Ofc Ananias)",          expiry:"2028-08-01"},
+  {name:"Officer Mikhael",                  expiry:"2028-07-31"},
+  {name:"Officer Ananias",                  expiry:"2028-07-26"},
+  {name:"Lois (H/O Bro Nerias)",            expiry:"2028-07-25"},
+  {name:"Rickel (H/O Ofc Yeremiah)",        expiry:"2028-06-18"},
+  {name:"Ricaiah (H/O Ofc Yeremiah)",       expiry:"2028-06-17"},
+  {name:"Keturah (H/O Ofc Nehemiah)",       expiry:"2028-06-11"},
+  {name:"Brother Marc",                     expiry:"2028-04-23"},
+  {name:"Soldier Esaias",                   expiry:"2028-04-21"},
+  {name:"Atarah (H/O Ofc Mikhael)",         expiry:"2028-04-08"},
+  {name:"Soldier Tamir",                    expiry:"2028-04-04"},
+  {name:"Avigail (H/O Ofc Markon)",         expiry:"2028-03-12"},
+  {name:"Damaris (H/O Sol Gabriel)",        expiry:"2028-02-14"},
+  {name:"Chana",                            expiry:"2028-02-06"},
+  {name:"Elisheeva (H/O Soldier Onias)",    expiry:"2027-11-27"},
+  {name:"Thamar (H/O Ofc Raashwan)",        expiry:"2027-11-11"},
+  {name:"Makayla",                          expiry:"2027-11-08"},
+  {name:"Ayah",                             expiry:"2027-11-01"},
+  {name:"Aliyah",                           expiry:"2027-10-24"},
+  {name:"Tehilla (H/O Ofc Asa)",            expiry:"2027-05-16"},
+  {name:"Niyaah",                           expiry:"2027-05-10"},
+  {name:"Ja'el (H/O Captain Nashon)",       expiry:"2027-04-21"},
+  {name:"Esther",                           expiry:"2027-02-08"},
+  {name:"Zahava",                           expiry:"2027-01-26"},
+  {name:"Zuri (H/O Ofc O'shea)",            expiry:"2027-01-22"},
+  {name:"Malyah",                           expiry:"2026-09-25"},
+  {name:"Yahyana",                          expiry:"2026-09-15"},
+  {name:"Yasmin (H/O Bishop Yawasap)",      expiry:"2026-09-15"},
+  {name:"Emzara (H/O Ofc Isaiah)",          expiry:"2026-06-21"},
+  {name:"Febe (D/O Bro Isaac)",             expiry:"2026-06-09"},
+  {name:"Brother Azziah",                   expiry:"2026-05-10"},
+  {name:"Lily",                             expiry:"2026-04-03"},
+  {name:"Judea (H/O Ofc Yechiel)",          expiry:"2026-02-23"},
+  {name:"Zehavya (H/O Brother James Judah)",expiry:"2025-08-13"}
+  // Moriah (H/O Ofc Yechiel) has no acquired/expiration date in the spreadsheet — left blank on purpose.
+];
 
 var TEAM_CFG = {
   bread:{label:'Bread Team',emoji:'🥖',
@@ -1019,6 +1070,50 @@ function ssStats(){
 }
 function ssColorVar(status){
   return status==='gray'?'var(--muted)':'var(--'+status+')';
+}
+
+// ── Normalize a name for matching: strip a leading title, trim, lowercase ──
+function ssNormalizeName(str){
+  return (str||'').replace(/\b(Officer|Soldier|Brother|Sister|Bishop|Captain)\s+/gi,'').trim().toLowerCase().replace(/\s+/g,' ');
+}
+function ssNamesMatch(a,b){
+  var na=ssNormalizeName(a),nb=ssNormalizeName(b);
+  if(!na||!nb) return false;
+  if(na===nb) return true;
+  // Allow minor spelling variance (e.g. "Chayil" vs "Chayill") via prefix match, min 4 chars
+  if(na.length>=4&&nb.length>=4&&(na.indexOf(nb)===0||nb.indexOf(na)===0)) return true;
+  return false;
+}
+
+// ── One-time bulk import of real ServSafe expiration dates from Michael's spreadsheet ──
+function importServSafeData(){
+  if(!_pinUnlocked){
+    toast('🔒 Enter PIN to make changes');
+    openPinModal();
+    return;
+  }
+  var matched=[];
+  var unmatched=[];
+  SERVSAFE_IMPORT_DATA.forEach(function(rec){
+    var hit=S.staff.find(function(s){return ssNamesMatch(s.name,rec.name);});
+    if(hit) matched.push({staff:hit,rec:rec});
+    else unmatched.push(rec.name);
+  });
+  var msg='Import ServSafe dates for '+matched.length+' matched team member'+(matched.length!==1?'s':'')+'?\n\nThis will set/overwrite their ServSafe expiration date.';
+  if(unmatched.length){
+    msg+='\n\n⚠ '+unmatched.length+' name'+(unmatched.length!==1?'s':'')+' from the spreadsheet could NOT be matched to a current team member and will be skipped:\n— '+unmatched.join('\n— ');
+  }
+  if(!confirm(msg)) return;
+  matched.forEach(function(m){ m.staff.ssExpiry=m.rec.expiry; });
+  save();
+  renderStaffTable();
+  renderDash();
+  toast('✅ ServSafe dates imported for '+matched.length+' member'+(matched.length!==1?'s':''));
+  if(unmatched.length){
+    setTimeout(function(){
+      alert('These spreadsheet names did not match anyone currently in the Team Members list — check spelling or add them as new workers if needed:\n\n— '+unmatched.join('\n— '));
+    },300);
+  }
 }
 
 function openPositions(){
@@ -1871,9 +1966,10 @@ function showWorkerModal(filter){
     red:'🔴 Unavailable This Sabbath',
     all:'👥 All Workers',
     'ss-expired':'🔴 Expired ServSafe Certification',
-    'ss-expiring':'🟡 ServSafe Expiring Within 30 Days'
+    'ss-expiring':'🟡 ServSafe Expiring Within 30 Days',
+    'ss-good':'🟢 Active / Good ServSafe Standing'
   };
-  var isSSFilter=(filter==='ss-expired'||filter==='ss-expiring');
+  var isSSFilter=(filter==='ss-expired'||filter==='ss-expiring'||filter==='ss-good');
   var workers;
   if(filter==='green'){
     workers=S.staff.filter(function(s){return s.avail!=='no'&&ids[s.id];});
@@ -1885,6 +1981,8 @@ function showWorkerModal(filter){
     workers=S.staff.filter(function(s){return ssInfo(s).status==='red';});
   } else if(filter==='ss-expiring'){
     workers=S.staff.filter(function(s){return ssInfo(s).status==='yellow';});
+  } else if(filter==='ss-good'){
+    workers=S.staff.filter(function(s){return ssInfo(s).status==='green';});
   } else {
     workers=S.staff.slice();
   }
