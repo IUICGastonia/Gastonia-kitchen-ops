@@ -121,6 +121,14 @@ table.stbl{width:100%;border-collapse:collapse;}
 .rm-btn{background:transparent;border:none;color:#5A3333;cursor:pointer;font-size:14px;padding:2px 6px;border-radius:4px;line-height:1;}
 .rm-btn:hover{color:var(--red);background:rgba(224,80,80,.1);}
 
+/* ── SERVSAFE ── */
+.ss-input{background:var(--bg3);border:1px solid var(--border);border-radius:4px;color:var(--white);padding:4px 6px;font-size:12px;width:100%;cursor:pointer;font-family:'Inter',sans-serif;min-width:130px;}
+.ss-input:focus{outline:none;border-color:var(--gold);}
+.ss-status{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;white-space:nowrap;}
+.ss-mobile{display:none;align-items:center;gap:6px;margin-top:4px;font-size:11px;}
+.ss-mobile .ss-mobile-lbl{color:var(--muted);}
+.ss-mobile .ss-mobile-status{font-weight:700;}
+
 /* ── ASSIGNMENT DROPDOWNS ── */
 .asgn-tbl{width:100%;border-collapse:collapse;}
 .asgn-tbl th{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;padding:5px 10px;text-align:left;border-bottom:1px solid var(--border);}
@@ -241,6 +249,8 @@ select.av-no{border-color:var(--red)!important;background:var(--red-bg)!importan
   .task-hdr,.task-row{grid-template-columns:1fr 1fr 70px 28px;}
   .main{padding:14px 14px 80px;}
   .asgn-tbl td:last-child{width:auto;}
+  .ss-desktop-cell{display:none;}
+  .ss-mobile{display:flex;}
 }
 </style>
 </head>
@@ -322,6 +332,15 @@ select.av-no{border-color:var(--red)!important;background:var(--red-bg)!importan
   </div>
   <div class="team-grid" id="dash-teams"></div>
   <div class="card">
+    <div class="card-title">ServSafe Certification</div>
+    <div class="stat-row">
+      <div class="stat s-green"><div class="stat-val" id="ds-ss-green">0</div><div class="stat-lbl">Active / Good</div></div>
+      <div class="stat s-yellow" onclick="showWorkerModal('ss-expiring')" style="cursor:pointer;"><div class="stat-val" id="ds-ss-yellow">0</div><div class="stat-lbl">Expiring ≤30 Days ▸</div></div>
+      <div class="stat s-red" onclick="showWorkerModal('ss-expired')" style="cursor:pointer;"><div class="stat-val" id="ds-ss-red">0</div><div class="stat-lbl">Expired ▸</div></div>
+      <div class="stat"><div class="stat-val" id="ds-ss-gray">0</div><div class="stat-lbl">Missing Date</div></div>
+    </div>
+  </div>
+  <div class="card">
     <div class="card-title">Command Structure</div>
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px;">
       <div><div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;">Head of Operations</div><input id="cmd-head" type="text" placeholder="Officer name" oninput="SF('cmd-head')" style="background:var(--bg3);border:1px solid var(--border);border-radius:5px;color:var(--white);padding:6px 9px;font-size:13px;font-weight:700;width:100%;"></div>
@@ -356,6 +375,8 @@ select.av-no{border-color:var(--red)!important;background:var(--red-bg)!importan
           <th>Name</th>
           <th>Default Team</th>
           <th>This Week</th>
+          <th class="ss-desktop-cell">ServSafe Expires</th>
+          <th class="ss-desktop-cell">Certification</th>
           <th style="width:32px;"></th>
         </tr></thead>
         <tbody id="staff-tbody"></tbody>
@@ -442,6 +463,10 @@ select.av-no{border-color:var(--red)!important;background:var(--red-bg)!importan
     <div class="card-title" style="color:var(--yellow);">🟡 Unassigned — Accountability View</div>
     <div style="font-size:12px;color:var(--muted);margin-bottom:10px;">Workers who are available but have no assignment this week.</div>
     <div id="sum-unassigned"></div>
+  </div>
+  <div class="card" style="margin-bottom:10px;">
+    <div class="card-title">ServSafe Certification Status</div>
+    <div id="sum-servsafe"></div>
   </div>
   <div class="card">
     <div class="card-title">Full Staff List</div>
@@ -946,6 +971,56 @@ function workerStats(){
   return {tot:tot,asgn:asgn,avl:avl,una:una};
 }
 
+// ══════════════════════════════════════════════════════════
+// SERVSAFE CERTIFICATION TRACKING
+// ══════════════════════════════════════════════════════════
+function parseLocalDate(str){
+  if(!str) return null;
+  var parts=String(str).split('-');
+  if(parts.length!==3) return null;
+  var y=parseInt(parts[0],10),m=parseInt(parts[1],10),d=parseInt(parts[2],10);
+  if(!y||!m||!d) return null;
+  var dt=new Date(y,m-1,d);
+  if(isNaN(dt.getTime())) return null;
+  return dt;
+}
+function todayLocal(){
+  var n=new Date();
+  return new Date(n.getFullYear(),n.getMonth(),n.getDate());
+}
+function daysBetween(a,b){
+  return Math.round((b.getTime()-a.getTime())/86400000);
+}
+function formatDateDisplay(str){
+  var dt=parseLocalDate(str);
+  if(!dt) return '';
+  var months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  return months[dt.getMonth()]+' '+dt.getDate()+', '+dt.getFullYear();
+}
+// Returns {status:'green'|'yellow'|'red'|'gray', days:Number|null, label:String, exp:String}
+function ssInfo(s){
+  var exp=(s&&s.ssExpiry)?s.ssExpiry:'';
+  var dt=exp?parseLocalDate(exp):null;
+  if(!dt) return {status:'gray',days:null,label:'No Date Entered',exp:''};
+  var days=daysBetween(todayLocal(),dt);
+  if(days<0){
+    var ago=Math.abs(days);
+    return {status:'red',days:days,label:'Expired '+ago+' Day'+(ago!==1?'s':'')+' Ago',exp:exp};
+  }
+  if(days<=30){
+    return {status:'yellow',days:days,label:days+' Day'+(days!==1?'s':'')+' Remaining',exp:exp};
+  }
+  return {status:'green',days:days,label:days+' Day'+(days!==1?'s':'')+' Remaining',exp:exp};
+}
+function ssStats(){
+  var out={green:0,yellow:0,red:0,gray:0};
+  S.staff.forEach(function(s){out[ssInfo(s).status]++;});
+  return out;
+}
+function ssColorVar(status){
+  return status==='gray'?'var(--muted)':'var(--'+status+')';
+}
+
 function openPositions(){
   var o=0;
   // A position is open only if empty string — N/A (__NA__) counts as filled
@@ -980,11 +1055,19 @@ function renderStaffTable(){
     // Avail select
     var avOpts='<option value="yes"'+(s.avail==='yes'?' selected':'')+'>✅ Available</option>'+
                 '<option value="no"'+(s.avail==='no'?' selected':'')+'>🔴 Unavailable</option>';
+    // ServSafe
+    var ss=ssInfo(s);
+    var ssDateVal=s.ssExpiry||'';
+    var ssMobileLbl=ss.exp?('Expires '+formatDateDisplay(ss.exp)):'ServSafe';
     tr.innerHTML=
       '<td><span class="dot '+dot+'"></span></td>'+
-      '<td><input type="text" value="'+esc(s.name)+'" placeholder="Name" data-sid="'+s.id+'" data-field="name" onblur="updateStaff(this)"></td>'+
+      '<td><input type="text" value="'+esc(s.name)+'" placeholder="Name" data-sid="'+s.id+'" data-field="name" onblur="updateStaff(this)">'+
+        '<div class="ss-mobile"><span class="dot '+ss.status+'"></span><span class="ss-mobile-lbl">'+ssMobileLbl+':</span><span class="ss-mobile-status" style="color:'+ssColorVar(ss.status)+';">'+ss.label+'</span></div>'+
+      '</td>'+
       '<td><select data-sid="'+s.id+'" data-field="team" onchange="updateStaff(this)">'+teamOpts+'</select></td>'+
       '<td><select data-sid="'+s.id+'" data-field="avail" onchange="updateStaff(this)" class="'+(s.avail==='no'?'av-no':'av-yes')+'">'+avOpts+'</select></td>'+
+      '<td class="ss-desktop-cell"><input type="date" class="ss-input" value="'+ssDateVal+'" data-sid="'+s.id+'" data-field="ssExpiry" onchange="updateStaff(this)"></td>'+
+      '<td class="ss-desktop-cell"><div class="ss-status" style="color:'+ssColorVar(ss.status)+';"><span class="dot '+ss.status+'"></span>'+ss.label+'</div></td>'+
       '<td><button class="rm-btn" onclick="removeStaff(\''+s.id+'\')">✕</button></td>';
     tbody.appendChild(tr);
   });
@@ -1000,6 +1083,12 @@ function updateStaff(el){
   if(!s)return;
   s[field]=val;
   save();
+  if(field==='ssExpiry'){
+    // Full re-render so status column, dot, and mobile row all reflect the new date
+    renderStaffTable();
+    renderDash();
+    return;
+  }
   // Only re-render the dot and avail select styling, not the whole table
   var tr=el.closest('tr');
   if(tr){
@@ -1474,6 +1563,9 @@ function renderDash(){
   var ws=workerStats();var op=openPositions();
   setV('ds-total',ws.tot);setV('ds-asgn',ws.asgn);setV('ds-avail',ws.avl);setV('ds-unavail',ws.una);setV('ds-open',op);
 
+  var ss=ssStats();
+  setV('ds-ss-green',ss.green);setV('ds-ss-yellow',ss.yellow);setV('ds-ss-red',ss.red);setV('ds-ss-gray',ss.gray);
+
   var g=document.getElementById('dash-teams');if(!g)return;g.innerHTML='';
   var allTms=[
     {key:'bread',lbl:'Bread Team',em:'🥖',roles:TEAM_CFG.bread.roles},
@@ -1625,6 +1717,35 @@ function renderSummary(){
     }
   }
 
+  // ── ServSafe Certification Status: sorted by urgency ──
+  var ssEl=document.getElementById('sum-servsafe');
+  if(ssEl){
+    ssEl.innerHTML='';
+    if(!S.staff.length){
+      ssEl.innerHTML='<div style="color:var(--muted);font-size:13px;padding:6px 0;">No team members in database.</div>';
+    } else {
+      var ssOrder={red:0,yellow:1,green:2,gray:3};
+      var withSS=S.staff.map(function(s){return {s:s,ss:ssInfo(s)};});
+      withSS.sort(function(a,b){
+        if(ssOrder[a.ss.status]!==ssOrder[b.ss.status]) return ssOrder[a.ss.status]-ssOrder[b.ss.status];
+        if(a.ss.days===null&&b.ss.days===null) return 0;
+        if(a.ss.days===null) return 1;
+        if(b.ss.days===null) return -1;
+        return a.ss.days-b.ss.days;
+      });
+      withSS.forEach(function(item){
+        var s=item.s,ssi=item.ss;
+        var row=document.createElement('div');
+        row.className='sum-row';
+        var expText=ssi.exp?formatDateDisplay(ssi.exp):'';
+        row.innerHTML='<div class="sum-rname"><span class="dot '+ssi.status+'"></span>'+esc(s.name)+'</div>'+
+          '<div class="flex-g"><span style="font-size:12px;color:'+ssColorVar(ssi.status)+';font-weight:600;">'+ssi.label+'</span>'+
+          (expText?'<span style="font-size:11px;color:var(--muted);">Exp: '+expText+'</span>':'')+'</div>';
+        ssEl.appendChild(row);
+      });
+    }
+  }
+
   // ── Full Staff List: sorted green → yellow → red, with all roles ──
   var sf=document.getElementById('sum-staff');
   if(sf){sf.innerHTML='';
@@ -1748,8 +1869,11 @@ function showWorkerModal(filter){
     green:'🟢 Assigned This Week',
     yellow:'🟡 Available — Not Assigned',
     red:'🔴 Unavailable This Sabbath',
-    all:'👥 All Workers'
+    all:'👥 All Workers',
+    'ss-expired':'🔴 Expired ServSafe Certification',
+    'ss-expiring':'🟡 ServSafe Expiring Within 30 Days'
   };
+  var isSSFilter=(filter==='ss-expired'||filter==='ss-expiring');
   var workers;
   if(filter==='green'){
     workers=S.staff.filter(function(s){return s.avail!=='no'&&ids[s.id];});
@@ -1757,6 +1881,10 @@ function showWorkerModal(filter){
     workers=S.staff.filter(function(s){return s.avail!=='no'&&!ids[s.id];});
   } else if(filter==='red'){
     workers=S.staff.filter(function(s){return s.avail==='no';});
+  } else if(filter==='ss-expired'){
+    workers=S.staff.filter(function(s){return ssInfo(s).status==='red';});
+  } else if(filter==='ss-expiring'){
+    workers=S.staff.filter(function(s){return ssInfo(s).status==='yellow';});
   } else {
     workers=S.staff.slice();
   }
@@ -1771,9 +1899,20 @@ function showWorkerModal(filter){
     list.innerHTML='<div style="color:var(--muted);font-size:13px;padding:12px 0;text-align:center;">None in this category</div>';
   } else {
     workers.forEach(function(s){
-      var d=staffDot(s);
+      var d=isSSFilter?ssInfo(s).status:staffDot(s);
       var row=document.createElement('div');
       row.style.cssText='display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(42,59,90,.5);';
+      if(isSSFilter){
+        var ssi=ssInfo(s);
+        var roleText2='<div style="font-size:11px;color:'+ssColorVar(ssi.status)+';margin-top:1px;font-weight:600;">'+ssi.label+(ssi.exp?' — Expires '+formatDateDisplay(ssi.exp):'')+'</div>';
+        row.innerHTML='<span class="dot '+d+'"></span>'+
+          '<div style="flex:1;">'+
+            '<div style="font-weight:600;font-size:13px;color:var(--white);">'+esc(s.name)+'</div>'+
+            roleText2+
+          '</div>';
+        list.appendChild(row);
+        return;
+      }
       // Find ALL positions this person is assigned to
       var allRoles=[];
       if(ids[s.id]){
@@ -1919,7 +2058,7 @@ function resetAutoLock(){
 
 function disableEditing(){
   // Disable all selects and inputs except PIN modal and header fields
-  document.querySelectorAll('.asgn-tbl select, .stbl select, .notes-ta, .done-toggle input, .chk-list input').forEach(function(el){
+  document.querySelectorAll('.asgn-tbl select, .stbl select, .notes-ta, .done-toggle input, .chk-list input, .ss-input').forEach(function(el){
     el.disabled=true;
     el.style.opacity='0.5';
     el.style.cursor='not-allowed';
@@ -1930,7 +2069,7 @@ function disableEditing(){
 }
 
 function enableEditing(){
-  document.querySelectorAll('.asgn-tbl select, .stbl select, .notes-ta, .done-toggle input, .chk-list input').forEach(function(el){
+  document.querySelectorAll('.asgn-tbl select, .stbl select, .notes-ta, .done-toggle input, .chk-list input, .ss-input').forEach(function(el){
     el.disabled=false;
     el.style.opacity='';
     el.style.cursor='';
