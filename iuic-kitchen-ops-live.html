@@ -883,9 +883,11 @@ function startLiveSync(){
           setLoadStatus('Empty DB — seeding 42 team members…');
           S.staff=DEFAULT_STAFF_LIST.map(function(s){return{id:uid(),name:s.name,team:s.team,avail:'yes'};});
           S.tasks=DEFAULT_TASKS.map(function(t){return{id:uid(),name:t.name,worker:'',time:t.time,done:false};});
+          autoImportServSafeIfNeeded();
           fetch(FB_URL+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(S)});
         } else {
           applyRemote(remote);
+          autoImportServSafeIfNeeded();
         }
         reRenderActive();
         if(!_pinUnlocked) setTimeout(disableEditing,150);
@@ -1083,6 +1085,34 @@ function ssNamesMatch(a,b){
   // Allow minor spelling variance (e.g. "Chayil" vs "Chayill") via prefix match, min 4 chars
   if(na.length>=4&&nb.length>=4&&(na.indexOf(nb)===0||nb.indexOf(na)===0)) return true;
   return false;
+}
+
+// ── Automatic one-time import: runs silently once on load if no one has a ServSafe date yet.
+// Never overwrites existing dates (manually entered or previously imported).
+function autoImportServSafeIfNeeded(){
+  if(!S.staff||!S.staff.length) return false;
+  var anyHasDate=S.staff.some(function(s){return !!s.ssExpiry;});
+  if(anyHasDate) return false;
+  var matched=[];
+  var unmatched=[];
+  SERVSAFE_IMPORT_DATA.forEach(function(rec){
+    var hit=S.staff.find(function(s){return ssNamesMatch(s.name,rec.name);});
+    if(hit) matched.push({staff:hit,rec:rec});
+    else unmatched.push(rec.name);
+  });
+  if(!matched.length) return false;
+  matched.forEach(function(m){ m.staff.ssExpiry=m.rec.expiry; });
+  fetch(FB_URL+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(S)})
+    .catch(function(e){console.warn('ServSafe auto-import save error:',e);});
+  setTimeout(function(){
+    toast('✅ ServSafe dates loaded for '+matched.length+' members');
+  },500);
+  if(unmatched.length){
+    setTimeout(function(){
+      alert('ServSafe import: these '+unmatched.length+' name(s) from the spreadsheet did not match anyone in Team Members — check spelling or add them as new workers:\n\n— '+unmatched.join('\n— '));
+    },1100);
+  }
+  return true;
 }
 
 // ── One-time bulk import of real ServSafe expiration dates from Michael's spreadsheet ──
